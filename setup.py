@@ -8,6 +8,11 @@ something based on that example.
 
 For more information about Edinburgh Genomics, see http://genomics.ed.ac.uk/
 For more information about MultiQC, see http://multiqc.info
+
+To use this, run multiqc -t edgen ...
+
+To install for tinkering and devloping:
+env PYTHONPATH="$HOME/.local/lib/python3.4/site-packages" python3 ./setup.py --verbose develop --prefix $HOME/.local
 """
 
 from setuptools import setup, find_packages
@@ -38,17 +43,17 @@ setup(
         ],
         # Template that has our branding and space for the meta-data to appear.
         'multiqc.templates.v1': [
-            'ngi = multiqc_edgen.templates.edgen',
+            'edgen = multiqc_edgen.templates.edgen',
         ],
         # Extra CLI options. Do we need em?
         'multiqc.cli_options.v1': [
-            'disable = multiqc_edgen.cli:disable_edgen',
-            'run_id = multiqc_edgen.cli:rid_option',
+            'enable = multiqc_edgen.cli:enable_edgen',
+            'run_id = multiqc_edgen.cli:run_id',
         ],
         # Hooks.
         'multiqc.hooks.v1': [
             'before_report_generation = multiqc_edgen.multiqc_edgen:edgen_before_report',
-            'execution_finish = multiqc_edgen.multiqc_edgen:edgen_execution_finish'
+            'execution_finish = multiqc_edgen.multiqc_edgen:edgen_finish'
         ]
     },
     classifiers = [

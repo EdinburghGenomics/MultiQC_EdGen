@@ -33,6 +33,11 @@ class edgen_before_report():
         # and stop MultiQC from crashing. But I think I want to fail if this bit fails.
         # At least for now.
 
+        # Down the line, note that installing the package automatically makes the
+        # plugin run for every multiqc invocation, so we need to be forgiving otherwise
+        # multiqc will only ever work on run folders.
+        # Actually that's not true - we can add a CLI option to enable/disable.
+
         #I think the idea is to call absolutely everything from the constructor!
         self.yaml_data = dict()
         self.load_all_yaml()
