@@ -1,0 +1,94 @@
+{# #######################
+  header.html
+##########################
+
+This block gives the introduction content at the top of each report.
+That is, the page title, welcome message, details of where the report
+was generated and the button that launches the welcome tour.
+
+#}
+
+<h1 id="page_title">
+  <a class="pull-right" href="http://www.scilifelab.se/platforms/ngi/" target="_blank">
+    <img src="data:image/png;base64,{{ include_file('assets/img/edgen-logo.png', b64=True) }}" title="Edinburgh Genomics">
+  </a>
+  <a href="http://multiqc.info" target="_blank">
+    <img src="data:image/png;base64,{{ include_file('assets/img/MultiQC_logo.png', b64=True) }}" title="MultiQC">
+  </a>
+</h1>
+<h1>
+  {{ config.title if config.title != None else 'MultiQC Report' }}
+  {{ ' <br><small>'+report.edgen['run_id']+'</small></h1>' if 'customer_project_reference' in report.edgen != None }}
+</h1>
+
+{% if config.report_comment and config.report_comment | length > 0 %}
+<blockquote class="report_comment">{{ config.report_comment }}</blockquote>
+{% endif %}
+
+<!-- The Python code will worry about the table layout here-->
+{{ report.edgen_run['metadata1'] if 'metadata1' in report.edgen_run }}
+
+<div id="analysis_dirs_wrapper">
+  <p>Report generated on {{ config.creation_date }} based on data in:
+  {% if config.analysis_dir | length == 1 %}<code class="mqc_analysis_path">{{ config.analysis_dir[0] }}</code>
+  {% else %}
+  <ul>
+    {% for d in config.analysis_dir %}
+    <li><code class="mqc_analysis_path">{{ d }}</code></li>
+    {%  endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+<!-- Kill this, I think -->
+{% if report.ngi.get('ngi_names_json', {}) | length > 0 %}
+<div class="btn-group" role="group" id="ngi_name_switch">
+  <button id="ngi_s_names" type="button" class="btn btn-primary active"><span class="glyphicon glyphicon-list"></span> NGI names</button>
+  <button id="ngi_user_s_names" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> User supplied names</button>
+</div>
+<script type="text/javascript">
+$(function(){
+  var ngi_sample_names = {{ report.ngi['ngi_names_json'] }};
+  $('#ngi_name_switch button').click(function(e){
+    e.preventDefault();
+    $('#ngi_name_switch button').removeClass('active');
+    $(this).addClass('active');
+    if($(this).attr('id') == 'ngi_user_s_names'){
+      for(var s in ngi_sample_names){
+        var li = '<li id="ngi_name_switch_'+s+'"><input class="f_text from_text" value="'+s+'" />'
+        li += '<small class="glyphicon glyphicon-chevron-right"></small><input class="f_text to_text" value="'+ngi_sample_names[s]+'" />'
+        li += '<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></li>'
+        $('#mqc_renamesamples_filters').append(li);
+      }
+      apply_mqc_renamesamples();
+    } else {
+      for(var s in ngi_sample_names){
+        $('#ngi_name_switch_'+s).remove();
+      }
+      apply_mqc_renamesamples();
+    }
+  });
+});
+</script>
+{{ report.ngi_names_js }}
+{% endif %}
+
+<hr>
+
+<div class="alert alert-info alert-dismissible hidden-print" id="mqc_welcome" style="display: none;">
+  <button type="button" data-dismiss="alert" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <button type="button" data-dismiss="alert" class="btn-link btn-sm" id="mqc_hide_welcome_btn">don't show again</button>
+  <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+  <strong>Welcome!</strong> Not sure where to start? &nbsp;
+  <a href="https://www.youtube.com/watch?v=qPbIlO_KWN0" target="_blank" class="btn btn-info btn-sm">Watch a tutorial video</a>
+  &nbsp; <small><em>(6:06)</em></small>
+</div>
+
+{% if report.num_hc_plots > 0 and report.general_stats_html['rows'] | length > config.num_datasets_plot_limit %}
+<div id="mqc-warning-many-samples" class="alert alert-warning alert-dismissible hidden-print">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+  Because this report contains a lot of samples, you may need to click 'Show plot' to see some graphs.
+  <button id="mqc-render-all-plots" class="btn btn-default btn-sm">Render all plots</button>
+</div>
+{% endif %}

@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+from __future__ import print_function, division, absolute_import
+""" MultiQC hook functions - we tie into the MultiQC
+core here to add in extra functionality and logic for EdGen run reports. """
+
+from collections import OrderedDict
+import logging
+import os, sys, re
+import yaml
+
+from pkg_resources import get_distribution
+__version__ = get_distribution("multiqc_edgen").version
+
+import multiqc
+from multiqc.utils import report, util_functions, config
+
+log = logging.getLogger('multiqc')
+
+#Container for the meta-data. Add keys that match things in the HTML template(s).
+report.edgen_run = dict()
+
+class edgen_before_report():
+    """ Custom code to run after the modules have finished but before the report.
+        This is the place to insert metadata tables at the top of the report and
+        any other tweaks we need to do.
+    """
+
+    def __init__(self):
+
+        log.debug("Running MultiQC_EdGen v{} (before_report)".format(__version__))
+
+        # NGI uses a global try statement to catch any unhandled exceptions
+        # and stop MultiQC from crashing. But I think I want to fail if this bit fails.
+        # At least for now.
+
+        #I think the idea is to call absolutely everything from the constructor!
+        self.yaml_data = dict()
+        self.load_all_yaml()
+
+        # Add HTML to report.edgen_run so the template can pick it up
+        report.edgen_run['metadata1'] = self.yaml_to_html()
+
+    def yaml_to_html(keys=None):
+        """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
+           use a table here.
+
+           If keys is supplied it must be a list of (printable, yaml_key) pairs.
+
+           TODO - I think we're going to need to break this out into multiple tables.
+        """
+        yaml_flat = { k: v for d in self.yaml_data.values() for k, v in d.items() }
+
+        if keys is None:
+            keys = [ (n, n) for n in sorted(yaml_flat.keys) ]
+
+        res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
+
+        for pk, yk in keys:
+            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, yaml_flat[yk]))
+
+        res.append('''</dl></div>''')
+
+        return '\n'.join(res) + '\n'
+
+    def load_all_yaml(self):
+        """Finds all files matching run_info.*.yml and load them in order.
+           Get the data into self.yaml_data.
+        """
+        #Am I just looking in the CWD?? Or do I have to explicitly say config.analysis_dir?
+
+        def _getnum(filename):
+            #Extract the number from the penultimate part of the filename.
+            try:
+                return int(filename.split('.')[-2])
+            except (ValueError, IndexError):
+                return -1
+
+        yamls = sorted( glob('run_info.*.yml'), key = _getnum )
+
+        for y in yamls:
+            self.yaml_data.update( yaml.safe_load(y) )
+
+
+class edgen_finish():
+
+    def __init__(self):
+
+            log.debug("Running MultiQC_EdGen v{} (finish)".format(__version__))
+
+            #try:
+
+            #...
