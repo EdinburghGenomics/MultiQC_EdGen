@@ -6,6 +6,7 @@ core here to add in extra functionality and logic for EdGen run reports. """
 from collections import OrderedDict
 import logging
 import os, sys, re
+from glob import glob
 import yaml
 
 from pkg_resources import get_distribution
@@ -45,7 +46,7 @@ class edgen_before_report():
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html()
 
-    def yaml_to_html(keys=None):
+    def yaml_to_html(self, keys=None):
         """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
 
@@ -56,7 +57,7 @@ class edgen_before_report():
         yaml_flat = { k: v for d in self.yaml_data.values() for k, v in d.items() }
 
         if keys is None:
-            keys = [ (n, n) for n in sorted(yaml_flat.keys) ]
+            keys = [ (n, n) for n in sorted(yaml_flat.keys()) ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
 
@@ -68,7 +69,7 @@ class edgen_before_report():
         return '\n'.join(res) + '\n'
 
     def load_all_yaml(self):
-        """Finds all files matching run_info.*.yml and load them in order.
+        """Finds all files matching run_info.*.yml and loads them in order.
            Get the data into self.yaml_data.
         """
         #Am I just looking in the CWD?? Or do I have to explicitly say config.analysis_dir?
@@ -80,10 +81,13 @@ class edgen_before_report():
             except (ValueError, IndexError):
                 return -1
 
-        yamls = sorted( glob('run_info.*.yml'), key = _getnum )
+        yamls = sorted( ( y for d in config.analysis_dir
+                            for y in glob(d + '/run_info.*.yml') ),
+                        key = _getnum )
 
         for y in yamls:
-            self.yaml_data.update( yaml.safe_load(y) )
+            with open(y) as yfh:
+                self.yaml_data.update( yaml.safe_load(yfh) )
 
 
 class edgen_finish():

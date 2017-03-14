@@ -9,8 +9,8 @@ was generated and the button that launches the welcome tour.
 #}
 
 <h1 id="page_title">
-  <a class="pull-right" href="http://www.scilifelab.se/platforms/ngi/" target="_blank">
-    <img src="data:image/png;base64,{{ include_file('assets/img/edgen-logo.png', b64=True) }}" title="Edinburgh Genomics">
+  <a class="pull-right" href="http://genomics.ed.ac.uk" target="_blank">
+    <img src="data:image/png;base64,{{ include_file('assets/img/edgen_logo.png', b64=True) }}" title="Edinburgh Genomics">
   </a>
   <a href="http://multiqc.info" target="_blank">
     <img src="data:image/png;base64,{{ include_file('assets/img/MultiQC_logo.png', b64=True) }}" title="MultiQC">
@@ -25,9 +25,6 @@ was generated and the button that launches the welcome tour.
 <blockquote class="report_comment">{{ config.report_comment }}</blockquote>
 {% endif %}
 
-<!-- The Python code will worry about the table layout here-->
-{{ report.edgen_run['metadata1'] if 'metadata1' in report.edgen_run }}
-
 <div id="analysis_dirs_wrapper">
   <p>Report generated on {{ config.creation_date }} based on data in:
   {% if config.analysis_dir | length == 1 %}<code class="mqc_analysis_path">{{ config.analysis_dir[0] }}</code>
@@ -40,39 +37,6 @@ was generated and the button that launches the welcome tour.
   {% endif %}
 </div>
 
-<!-- Kill this, I think -->
-{% if report.ngi.get('ngi_names_json', {}) | length > 0 %}
-<div class="btn-group" role="group" id="ngi_name_switch">
-  <button id="ngi_s_names" type="button" class="btn btn-primary active"><span class="glyphicon glyphicon-list"></span> NGI names</button>
-  <button id="ngi_user_s_names" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> User supplied names</button>
-</div>
-<script type="text/javascript">
-$(function(){
-  var ngi_sample_names = {{ report.ngi['ngi_names_json'] }};
-  $('#ngi_name_switch button').click(function(e){
-    e.preventDefault();
-    $('#ngi_name_switch button').removeClass('active');
-    $(this).addClass('active');
-    if($(this).attr('id') == 'ngi_user_s_names'){
-      for(var s in ngi_sample_names){
-        var li = '<li id="ngi_name_switch_'+s+'"><input class="f_text from_text" value="'+s+'" />'
-        li += '<small class="glyphicon glyphicon-chevron-right"></small><input class="f_text to_text" value="'+ngi_sample_names[s]+'" />'
-        li += '<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></li>'
-        $('#mqc_renamesamples_filters').append(li);
-      }
-      apply_mqc_renamesamples();
-    } else {
-      for(var s in ngi_sample_names){
-        $('#ngi_name_switch_'+s).remove();
-      }
-      apply_mqc_renamesamples();
-    }
-  });
-});
-</script>
-{{ report.ngi_names_js }}
-{% endif %}
-
 <hr>
 
 <div class="alert alert-info alert-dismissible hidden-print" id="mqc_welcome" style="display: none;">
@@ -83,6 +47,10 @@ $(function(){
   <a href="https://www.youtube.com/watch?v=qPbIlO_KWN0" target="_blank" class="btn btn-info btn-sm">Watch a tutorial video</a>
   &nbsp; <small><em>(6:06)</em></small>
 </div>
+
+<!-- The Python code will worry about the table layout here-->
+{{ report.edgen_run['metadata1'] if 'metadata1' in report.edgen_run }}
+
 
 {% if report.num_hc_plots > 0 and report.general_stats_html['rows'] | length > config.num_datasets_plot_limit %}
 <div id="mqc-warning-many-samples" class="alert alert-warning alert-dismissible hidden-print">
