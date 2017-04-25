@@ -8,6 +8,8 @@ import logging
 import os, sys, re
 from glob import glob
 import yaml
+import base64
+from cgi import escape
 
 from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
@@ -19,6 +21,25 @@ log = logging.getLogger('multiqc')
 
 #Container for the meta-data. Add keys that match things in the HTML template(s).
 report.edgen_run = dict()
+
+class edgen_before_modules():
+    """Blacklist some modules so that replacement ones can be provided
+       by this plugin.
+    """
+    def __init__(self):
+        self.blacklist_modules()
+
+    def blacklist_modules(self):
+
+        blacklist = ['cutadapt']
+
+        for m in blacklist:
+            if m in config.run_modules:
+                log.info("Suppressing default {} module.".format(m))
+
+        config.run_modules[:] = [ m for m in config.run_modules
+                                  if m not in blacklist ]
+
 
 class edgen_before_report():
     """ Custom code to run after the modules have finished but before the report.
@@ -62,11 +83,36 @@ class edgen_before_report():
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
 
         for pk, yk in keys:
-            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, yaml_flat[yk]))
+            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, self.linkify(yaml_flat[yk])))
 
         res.append('''</dl></div>''')
 
         return '\n'.join(res) + '\n'
+
+    def linkify(self, val):
+        """Turns an item from the YAML into a link.
+           Hyperlinks are simple.
+           File links are trickier.
+        """
+        if type(val) is not list or len(val) != 2:
+            return escape(str(val))
+
+        if val[1] is None:
+            return escape(str(val[0]))
+
+        # Normal hyperlink is simple
+        if re.match('https?://', val[1]):
+            return "<a href='{}'>{}</a>".format(val[1], escape(val[0]))
+
+        # File upload is trickier
+        if not os.path.exists(val[1]):
+            return "{} (file not found)".format(escape(val[0]))
+
+        # Embed the file
+        with open(val[1], "rb") as f:
+            return "<a href='data:text/plain;charset=utf-8;base64,{}'>{}</a>".format(
+                        base64.b64encode(f.read()).decode('utf-8'),
+                        escape(val[0]) )
 
     def load_all_yaml(self):
         """Finds all files matching run_info.*.yml and loads them in order.
@@ -87,6 +133,7 @@ class edgen_before_report():
 
         for y in yamls:
             with open(y) as yfh:
+                log.info("Loading metadata from {}".format(y))
                 self.yaml_data.update( yaml.safe_load(yfh) )
 
 

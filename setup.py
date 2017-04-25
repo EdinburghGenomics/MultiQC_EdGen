@@ -52,6 +52,7 @@ setup(
         ],
         # Hooks.
         'multiqc.hooks.v1': [
+            'before_modules = multiqc_edgen.multiqc_edgen:edgen_before_modules',
             'before_report_generation = multiqc_edgen.multiqc_edgen:edgen_before_report',
             'execution_finish = multiqc_edgen.multiqc_edgen:edgen_finish'
         ]
