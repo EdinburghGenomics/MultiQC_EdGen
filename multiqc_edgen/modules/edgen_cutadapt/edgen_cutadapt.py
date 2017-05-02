@@ -52,7 +52,7 @@ class MultiqcModule(BaseMultiqcModule):
         log.info("Found {} reports".format(len(self.cutadapt_data)))
 
         # Write parsed report data to a file
-        self.write_data_file(self.cutadapt_data, 'eg_cutadapt')
+        self.write_data_file(self.cutadapt_data, 'edgen_cutadapt')
 
         # Add the percentage of seqs <5bp to the general stats table
         self.cutadapt_general_stats_table()
