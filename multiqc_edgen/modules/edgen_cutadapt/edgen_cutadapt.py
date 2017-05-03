@@ -192,6 +192,7 @@ class MultiqcModule(BaseMultiqcModule):
             'title': 'Lengths of Trimmed Sequences',
             'xlab': 'Cumulative length After Trim (bp)',
             'xDecimals': False,
+            'xPlotBands': [5], #Not supported on highcharts graphs?
             'ymin': 0,
             'yMinRange': 1,
             'tt_label': '<b>{point.x} bp</b>: {point.y:.0f}',
