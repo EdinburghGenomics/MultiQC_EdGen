@@ -67,6 +67,9 @@ class edgen_before_report():
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html()
 
+        # Fix the report title to be correct based on the metadata
+        config.title = "Run report for " + self.linkify(self.yaml_data.get('Run Name', '[unknown run]'))
+
     def yaml_to_html(self, keys=None):
         """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
