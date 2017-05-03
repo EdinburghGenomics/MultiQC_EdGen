@@ -39,7 +39,7 @@ setup(
     entry_points = {
         # Extra QC modules that digest report files.
         'multiqc.modules.v1': [
-            'edgen_interop = multiqc_edgen.modules.edgen_interop:MultiqcModule',
+            'edgen_interop  = multiqc_edgen.modules.edgen_interop:MultiqcModule',
             'edgen_cutadapt = multiqc_edgen.modules.edgen_cutadapt:MultiqcModule',
         ],
         # Template that has our branding and space for the meta-data to appear.
