@@ -12,7 +12,7 @@ For more information about MultiQC, see http://multiqc.info
 To use this, run multiqc -t edgen ...
 
 To install for tinkering and developing:
-env PYTHONPATH="$HOME/.local/lib/python3.4/site-packages" python3 ./setup.py --verbose develop --prefix $HOME/.local
+$ env PYTHONPATH="`python3 -m site --user-site`" python3 ./setup.py --verbose develop --prefix "`python3 -m site --user-base`"
 """
 
 from setuptools import setup, find_packages
@@ -39,7 +39,7 @@ setup(
     entry_points = {
         # Extra QC modules that digest report files.
         'multiqc.modules.v1': [
-            'edgen_foo = multiqc_edgen.modules.edgen_foo:MultiqcModule',
+            'edgen_interop = multiqc_edgen.modules.edgen_interop:MultiqcModule',
             'edgen_cutadapt = multiqc_edgen.modules.edgen_cutadapt:MultiqcModule',
         ],
         # Template that has our branding and space for the meta-data to appear.
