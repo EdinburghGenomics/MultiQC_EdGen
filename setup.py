@@ -17,7 +17,7 @@ $ env PYTHONPATH="`python3 -m site --user-site`" python3 ./setup.py --verbose de
 
 from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.2'
 
 setup(
     name = 'multiqc_edgen',
@@ -32,6 +32,7 @@ setup(
     license = 'MIT',
     packages = find_packages(),
     include_package_data = True,
+    package_data = dict( multiqc_edgen = ['utils/*.yaml'] ),
     install_requires = [
         'pyyaml',
         'requests'
