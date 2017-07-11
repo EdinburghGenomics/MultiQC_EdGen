@@ -62,13 +62,14 @@ class edgen_before_report():
 
         #I think the idea is to call absolutely everything from the constructor!
         self.yaml_data = dict()
+        self.yaml_flat = dict()
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html()
 
         # Fix the report title to be correct based on the metadata
-        config.title = "Run report for " + self.linkify(self.yaml_data.get('Run Name', '[unknown run]'))
+        config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run Name', '[unknown run]'))
 
     def yaml_to_html(self, keys=None):
         """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
@@ -78,15 +79,13 @@ class edgen_before_report():
 
            TODO - I think we're going to need to break this out into multiple tables.
         """
-        yaml_flat = { k: v for d in self.yaml_data.values() for k, v in d.items() }
-
         if keys is None:
-            keys = [ (n, n) for n in sorted(yaml_flat.keys()) ]
+            keys = [ (n, n) for n in sorted(self.yaml_flat.keys()) ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
 
         for pk, yk in keys:
-            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, self.linkify(yaml_flat[yk])))
+            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, self.linkify(self.yaml_flat[yk])))
 
         res.append('''</dl></div>''')
 
@@ -121,8 +120,7 @@ class edgen_before_report():
         """Finds all files matching run_info.*.yml and loads them in order.
            Get the data into self.yaml_data.
         """
-        #Am I just looking in the CWD?? Or do I have to explicitly say config.analysis_dir?
-
+        #FIXME - Am I just looking in the CWD?? Or do I have to explicitly say config.analysis_dir?
         def _getnum(filename):
             #Extract the number from the penultimate part of the filename.
             try:
@@ -138,6 +136,8 @@ class edgen_before_report():
             with open(y) as yfh:
                 log.info("Loading metadata from {}".format(y))
                 self.yaml_data.update( yaml.safe_load(yfh) )
+
+        self.yaml_flat = { k: v for d in self.yaml_data.values() for k, v in d.items() }
 
 
 class edgen_finish():
