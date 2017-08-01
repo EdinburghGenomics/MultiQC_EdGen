@@ -37,8 +37,7 @@ class edgen_before_modules():
             if m in config.run_modules:
                 log.info("Suppressing default {} module.".format(m))
 
-        config.run_modules[:] = [ m for m in config.run_modules
-                                  if m not in blacklist ]
+                del(config.run_modules[m])
 
 
 class edgen_before_report():
