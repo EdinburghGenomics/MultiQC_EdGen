@@ -39,7 +39,7 @@ class MultiqcModule(BaseMultiqcModule):
 
         self.tmp_dir = os.path.join(config.data_tmp_dir, 'edgen_interop')
 
-        for n, f in enumerate(self.find_log_files('interop')):
+        for n, f in enumerate(self.find_log_files('interop', filehandles=True)):
             self.process_interop_plot(n, f)
 
         # Abort if none found
@@ -52,7 +52,8 @@ class MultiqcModule(BaseMultiqcModule):
         self.write_data_file(self.interop_plots, 'edgen_interop')
 
         # Add the plots to the output of this module.
-        self.intro += self.interop_plots_html()
+        for sect in self.interop_plots_html():
+            self.add_section(**sect)
 
     def process_interop_plot(self, n, f):
         """Needs to deal with a .interop_plot file as produced by the interop tools.
@@ -88,20 +89,19 @@ class MultiqcModule(BaseMultiqcModule):
     def interop_plots_html(self):
         """Get the plots into the report.
         """
-        html = ""
         for ipt, ipf in sorted(self.interop_plot_files.items()):
-            html += "<h3>{}</h3>".format(html_escape(ipt))
 
             # Code adapted from multiqc/plots/linegraph.py
             pid = "".join([c for c in ipt if c.isalpha() or c.isdigit() or c == '_' or c == '-'])
             hidediv = ''
 
             # Output the figure to a base64 encoded string
+            html = ""
             template_mod = config.avail_templates[config.template].load()
             if getattr(template_mod, 'base64_plots', True) is True:
                 with open(ipf, "rb") as f:
                     b64_img = base64.b64encode(f.read()).decode('utf8')
-                    html += ('<div id="{}"{}><img style="border:none" src="data:image/png;base64,{}" />' +
+                    html = ('<div id="{}"{}><img style="border:none" src="data:image/png;base64,{}" />' +
                              '</div>').format(pid, hidediv, b64_img)
 
             # Or else move it to a file we want to keep and link <img>
@@ -109,6 +109,6 @@ class MultiqcModule(BaseMultiqcModule):
                 plot_relpath = os.path.join(config.data_dir_name, 'multiqc_plots', '{}.png'.format(pid))
                 #Not sure about this...
                 os.rename(ipf, plot_relpath)
-                html += '<div id="{}"{}><img style="border:none" src="{}" /></div>'.format(pid, hidediv, plot_relpath)
+                html = '<div id="{}"{}><img style="border:none" src="{}" /></div>'.format(pid, hidediv, plot_relpath)
 
-        return html
+            yield dict(name=ipt, plot=html)

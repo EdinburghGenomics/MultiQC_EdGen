@@ -41,7 +41,7 @@ class MultiqcModule(BaseMultiqcModule):
         self.cutadapt_trimmed_histo = dict()
 
         #Use the standard configuration when looking for cutadapt files.
-        for f in self.find_log_files('cutadapt'):
+        for f in self.find_log_files('cutadapt', filehandles=True):
             self.parse_cutadapt_log(f)
         self.calculate_extra_numbers()
 
@@ -58,8 +58,10 @@ class MultiqcModule(BaseMultiqcModule):
         self.cutadapt_general_stats_table()
 
         # Trimming Length Profiles
-        # Only one section, so add to the intro
-        self.intro += self.cutadapt_length_plot()
+        self.add_section (
+            name = 'Lengths after adapter trimming',
+            **self.cutadapt_length_plot()
+        )
 
 
     def parse_cutadapt_log(self, f):
@@ -181,15 +183,16 @@ class MultiqcModule(BaseMultiqcModule):
 
     def cutadapt_length_plot (self):
         """ Generate the post-trim length plot """
-        html = '''<p>
+        description = '''
             This plot shows the cumulative number of reads with certain lengths after the adapter was trimmed.
             You can view up to 10 bases or up to the ful sequence length.
             You can show the numbers as raw counts or as percentages of the reads.</p>
         '''
 
+        anchor = 'cutadapt_plot'
+
         pconfig = {
-            'id': 'cutadapt_plot',
-            'title': 'Lengths of Trimmed Sequences',
+            'id': anchor,
             'xlab': 'Cumulative length After Trim (bp)',
             'xDecimals': False,
             'xPlotBands': [5], #Not supported on highcharts graphs?
@@ -213,6 +216,6 @@ class MultiqcModule(BaseMultiqcModule):
         acc_len = { k: dict(enumerate(accumulate(v['length_histo']))) for k, v in self.cutadapt_data.items() }
         acc_perc = { k: {k2: 100*l/self.cutadapt_data[k]['r_processed'] for k2, l in v.items()} for k, v in acc_len.items() }
 
-        html += linegraph.plot([ acc_perc_10, acc_len_10, acc_perc, acc_len ], pconfig)
+        plot = linegraph.plot([ acc_perc_10, acc_len_10, acc_perc, acc_len ], pconfig)
 
-        return html
+        return dict(description=description, plot=plot, anchor=anchor)
