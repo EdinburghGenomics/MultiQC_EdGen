@@ -39,7 +39,7 @@ class MultiqcModule(BaseMultiqcModule):
 
         self.tmp_dir = os.path.join(config.data_tmp_dir, 'edgen_interop')
 
-        for n, f in enumerate(self.find_log_files(config.sp['interop'], filehandles=True)):
+        for n, f in enumerate(self.find_log_files('interop')):
             self.process_interop_plot(n, f)
 
         # Abort if none found
@@ -71,7 +71,7 @@ class MultiqcModule(BaseMultiqcModule):
         retcode = call("gnuplot", stdin=f['f'], cwd=tmp_dir)
 
         if retcode != 0:
-            logger.warning("GNUPlot returned {}.".format(retcode))
+            log.warning("GNUPlot returned {}.".format(retcode))
 
         # See what file was made
         gp_output = os.listdir(tmp_dir)

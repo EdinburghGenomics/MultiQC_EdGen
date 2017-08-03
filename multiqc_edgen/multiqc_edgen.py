@@ -68,7 +68,7 @@ class edgen_before_report():
         report.edgen_run['metadata1'] = self.yaml_to_html()
 
         # Fix the report title to be correct based on the metadata
-        config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run Name', '[unknown run]'))
+        config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
 
     def yaml_to_html(self, keys=None):
         """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
