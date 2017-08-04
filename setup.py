@@ -32,7 +32,7 @@ setup(
     license = 'MIT',
     packages = find_packages(),
     include_package_data = True,
-    package_data = { '': ['utils/*.yaml', '*.html', '*.png' ] },
+    package_data = { '': ['utils/*.yaml', '*.html', 'templates/*/assets' ] },
     install_requires = [
         'pyyaml',
         'requests'
