@@ -32,7 +32,7 @@ setup(
     license = 'MIT',
     packages = find_packages(),
     include_package_data = True,
-    package_data = dict( multiqc_edgen = ['utils/*.yaml'] ),
+    package_data = { '': ['utils/*.yaml', '*.html', '*.png' ] },
     install_requires = [
         'pyyaml',
         'requests'
