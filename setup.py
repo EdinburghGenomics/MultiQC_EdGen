@@ -32,7 +32,9 @@ setup(
     license = 'MIT',
     packages = find_packages(),
     include_package_data = True,
-    package_data = { '': ['utils/*.yaml', '*.html', 'templates/*/assets/img/*.*' ] },
+    package_data = { '': ['utils/*.yaml', '*.html',
+                          'templates/*/assets/img/*.*',
+                          'templates/*/assets/css/*.*' ] },
     install_requires = [
         'pyyaml',
         'requests'
@@ -51,6 +53,7 @@ setup(
         'multiqc.cli_options.v1': [
             'enable = multiqc_edgen.cli:enable_edgen',
             'run_id = multiqc_edgen.cli:run_id',
+            'lane   = multiqc_edgen.cli:lane',
         ],
         # Hooks.
         'multiqc.hooks.v1': [

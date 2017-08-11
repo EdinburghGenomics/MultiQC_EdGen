@@ -65,12 +65,38 @@ class edgen_before_report():
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
-        report.edgen_run['metadata1'] = self.yaml_to_html()
+        report.edgen_run['metadata1'] = self.yaml_to_html(skip='Lanes')
+
+        # Add navigation between lanes on the run.
+        report.edgen_run['navbar'] = self.make_navbar()
 
         # Fix the report title to be correct based on the metadata
         config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
 
-    def yaml_to_html(self, keys=None):
+    def make_navbar(self):
+        """Make the navigation between reports for all the lanes on the run.
+        """
+        # How many lanes are there and which lane is this report for?
+        lanes = int(self.yaml_flat.get('lanes', 1))
+
+        if lanes <= 1:
+            return '' # No navigation necessary
+
+        # And the lane this report refers to should be passed with the --lane parameter;
+        # see cli.py. I think this is how you access the setting...
+        lane = int(config.kwargs.get(lane, 0))
+
+        res = ['<div class="page_browser"><div class="page_browser_header">',
+               '<span id="page_browser_title">Lanes on this run</span>',
+               '<ul id="page_browser_tabs>']
+        for l in range(1, lanes+1):
+            if l != lane:
+                res.append('<li><a href="multiqc_report_lane{}.html">{}</a></li>')
+            else
+                res.append('<li class="active"><a href="multiqc_report_lane{}.html">{}</a></li>')
+
+
+    def yaml_to_html(self, keys=None, skip=()):
         """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
 
@@ -80,6 +106,7 @@ class edgen_before_report():
         """
         if keys is None:
             keys = [ (n, n) for n in sorted(self.yaml_flat.keys()) ]
+        keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
 

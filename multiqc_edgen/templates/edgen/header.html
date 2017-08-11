@@ -6,7 +6,12 @@ This block gives the introduction content at the top of each report.
 That is, the page title, welcome message, details of where the report
 was generated and the button that launches the welcome tour.
 
+Also includes some extra style info.
 #}
+<style type="text/css">
+  {{ include_file('assets/css/edgen.css', b64=False) }}
+</style>
+
 
 <h1 id="page_title">
   <a class="pull-right" href="http://genomics.ed.ac.uk" target="_blank">

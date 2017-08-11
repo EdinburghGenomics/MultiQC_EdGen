@@ -33,8 +33,8 @@ class MultiqcModule(BaseMultiqcModule):
         # Initialise the parent object
         super(MultiqcModule, self).__init__(name='Cutadapt', anchor='cutadapt',
         href='https://github.com/marcelm/cutadapt',
-        info="is used to detect excessive adapter sequence - ie. short inserts" \
-             "and adapter dimers in the read1 sequence data.")
+        info="is used to detect excessive adapter sequence - ie. short inserts"
+             " and adapter dimers in the read1 sequence data.")
 
         # Find and load any Cutadapt reports
         self.cutadapt_data = dict()
