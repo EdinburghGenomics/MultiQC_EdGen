@@ -65,7 +65,7 @@ class edgen_before_report():
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
-        report.edgen_run['metadata1'] = self.yaml_to_html(skip='Lanes')
+        report.edgen_run['metadata1'] = self.yaml_to_html(skip='LaneCount')
 
         # Add navigation between lanes on the run.
         report.edgen_run['navbar'] = self.make_navbar()
@@ -79,7 +79,7 @@ class edgen_before_report():
         """Make the navigation between reports for all the lanes on the run.
         """
         # How many lanes are there and which lane is this report for?
-        lanes = int(self.yaml_flat.get('Lanes') or 1)
+        lanes = int(self.yaml_flat.get('LaneCount') or 1)
 
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py. I think this is how you access the setting...
