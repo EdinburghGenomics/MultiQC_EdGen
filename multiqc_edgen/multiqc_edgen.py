@@ -79,11 +79,11 @@ class edgen_before_report():
         """Make the navigation between reports for all the lanes on the run.
         """
         # How many lanes are there and which lane is this report for?
-        lanes = int(self.yaml_flat.get('Lanes', 1))
+        lanes = int(self.yaml_flat.get('Lanes') or 1)
 
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py. I think this is how you access the setting...
-        lane = int(config.kwargs.get('lane', 0))
+        lane = int(config.kwargs.get('lane') or 0)
 
         # As a side effect, set self.lane
         self.lane = [ lane, lanes ]
