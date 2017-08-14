@@ -72,6 +72,8 @@ class edgen_before_report():
 
         # Fix the report title to be correct based on the metadata
         config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
+        if self.lane[1] > 1:
+            config.title += ' lane {}'.format(self.lane[0])
 
     def make_navbar(self):
         """Make the navigation between reports for all the lanes on the run.
@@ -79,12 +81,15 @@ class edgen_before_report():
         # How many lanes are there and which lane is this report for?
         lanes = int(self.yaml_flat.get('Lanes', 1))
 
-        if lanes <= 1:
-            return '' # No navigation necessary
-
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py. I think this is how you access the setting...
         lane = int(config.kwargs.get('lane', 0))
+
+        # As a side effect, set self.lane
+        self.lane = [ lane, lanes ]
+
+        if lanes <= 1:
+            return '' # No navigation necessary
 
         res = ['<div id="page_browser"><div id="page_browser_header">',
                '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=lanes),
