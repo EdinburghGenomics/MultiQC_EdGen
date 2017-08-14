@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """ MultiQC command line options - we tie into the MultiQC
-core here and add some new command line parameters. """
+core here and add some new command line parameters.
+
+Note that for new parameters to stick you need to re-run setup.py -
+see the notes in that file for development mode re-installation.
+"""
 
 import click
 
@@ -16,7 +20,7 @@ run_id = click.option('--run_id', '--run-id', 'rid',
 )
 
 # This we do need...
-lane = click.option('--lane', 'lane'
+lane = click.option('--lane', 'lane',
     type = int,
     help = 'Say which lane this report relates to.'
 )
