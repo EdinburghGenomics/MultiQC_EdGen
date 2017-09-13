@@ -39,7 +39,7 @@ class MultiqcModule(BaseMultiqcModule):
 
         self.tmp_dir = os.path.join(config.data_tmp_dir, 'edgen_interop')
 
-        for n, f in enumerate(self.find_log_files('interop', filehandles=True)):
+        for n, f in enumerate(self.find_log_files('edgen_interop', filehandles=True)):
             self.process_interop_plot(n, f)
 
         # Abort if none found

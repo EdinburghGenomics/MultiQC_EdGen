@@ -1,2 +1,5 @@
-interop:
+edgen_interop:
     fn: '*.interop_plot'
+edgen_cutadapt:
+    contents: 'This is cutadapt'
+    shared: true

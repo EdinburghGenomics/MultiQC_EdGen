@@ -41,7 +41,7 @@ class MultiqcModule(BaseMultiqcModule):
         self.cutadapt_trimmed_histo = dict()
 
         #Use the standard configuration when looking for cutadapt files.
-        for f in self.find_log_files('cutadapt', filehandles=True):
+        for f in self.find_log_files('edgen_cutadapt', filehandles=True):
             self.parse_cutadapt_log(f)
         self.calculate_extra_numbers()
 
