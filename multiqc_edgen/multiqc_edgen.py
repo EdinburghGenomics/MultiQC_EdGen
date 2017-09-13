@@ -96,7 +96,7 @@ class edgen_before_report():
         #    return '' # No navigation necessary
 
         res = ['<div id="page_browser"><div id="page_browser_header">',
-               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=lanes),
+               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=self.lanes),
                '<ul id="page_browser_tabs">']
         for l in reversed( range(lanes+1) ):
             # Reversed because that's how the CSS layout works.
