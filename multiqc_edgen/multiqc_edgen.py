@@ -83,6 +83,7 @@ class edgen_before_report():
         """
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py.
+        lanes = self.lanes #should be set already
         lane_str = config.kwargs.get('lane', '')
 
         if lane_str.startswith('lane'):
@@ -92,11 +93,11 @@ class edgen_before_report():
 
         # This was true until we added the separate overview. Maybe we can still have a single report
         # for single-lane machines?
-        #if self.lanes <= 1:
+        #if lanes <= 1:
         #    return '' # No navigation necessary
 
         res = ['<div id="page_browser"><div id="page_browser_header">',
-               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=self.lanes),
+               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=lanes),
                '<ul id="page_browser_tabs">']
         for l in reversed( range(lanes+1) ):
             # Reversed because that's how the CSS layout works.
