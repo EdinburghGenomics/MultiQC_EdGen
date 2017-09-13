@@ -67,39 +67,46 @@ class edgen_before_report():
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html(skip='LaneCount')
 
+        # How many lanes are there in this run?
+        self.lanes = int(self.yaml_flat.get('LaneCount') or 1)
+
         # Add navigation between lanes on the run.
         report.edgen_run['navbar'] = self.make_navbar()
 
         # Fix the report title to be correct based on the metadata
         config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
-        if self.lane[1] > 1:
-            config.title += ' lane {}'.format(self.lane[0])
+        if self.lanes:
+            config.title += ' lane {}'.format(self.lane)
 
     def make_navbar(self):
         """Make the navigation between reports for all the lanes on the run.
         """
-        # How many lanes are there and which lane is this report for?
-        lanes = int(self.yaml_flat.get('LaneCount') or 1)
-
         # And the lane this report refers to should be passed with the --lane parameter;
-        # see cli.py. I think this is how you access the setting...
-        lane = int(config.kwargs.get('lane') or 0)
+        # see cli.py.
+        lane_str = config.kwargs.get('lane', '')
 
-        # As a side effect, set self.lane
-        self.lane = [ lane, lanes ]
+        if lane_str.startswith('lane'):
+            self.lane = int(lane_str[4:])
+        else:
+            self.lane = 0
 
-        if lanes <= 1:
-            return '' # No navigation necessary
+        # This was true until we added the separate overview. Maybe we can still have a single report
+        # for single-lane machines?
+        #if self.lanes <= 1:
+        #    return '' # No navigation necessary
 
         res = ['<div id="page_browser"><div id="page_browser_header">',
                '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=lanes),
                '<ul id="page_browser_tabs">']
-        for l in reversed(range(1, lanes+1)):
+        for l in reversed( range(lanes+1) ):
             # Reversed because that's how the CSS layout works.
-            if l != lane:
-                res.append('<li><a href="multiqc_report_lane{l}.html">{l}</a></li>'.format(l=l))
+            llabel = l if l else 'Overview'
+            llink = 'lane{}'.format(l) if l else 'overview'
+
+            if l == self.lane:
+                res.append('<li><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
             else:
-                res.append('<li class="active"><a href="multiqc_report_lanel{l}.html">{l}</a></li>'.format(l=l))
+                res.append('<li class="active"><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
         res.append("</ul></div></div>")
 
         return '\n'.join(res)

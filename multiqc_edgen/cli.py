@@ -21,6 +21,6 @@ run_id = click.option('--run_id', '--run-id', 'rid',
 
 # This we do need...
 lane = click.option('--lane', 'lane',
-    type = int,
+    type = str,
     help = 'Say which lane this report relates to.'
 )
