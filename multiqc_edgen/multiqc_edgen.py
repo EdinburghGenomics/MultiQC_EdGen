@@ -75,7 +75,7 @@ class edgen_before_report():
 
         # Fix the report title to be correct based on the metadata
         config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
-        if self.lanes:
+        if self.lane:
             config.title += ' lane {}'.format(self.lane)
 
     def make_navbar(self):
@@ -105,9 +105,9 @@ class edgen_before_report():
             llink = 'lane{}'.format(l) if l else 'overview'
 
             if l == self.lane:
-                res.append('<li><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
-            else:
                 res.append('<li class="active"><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
+            else:
+                res.append('<li><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
         res.append("</ul></div></div>")
 
         return '\n'.join(res)
