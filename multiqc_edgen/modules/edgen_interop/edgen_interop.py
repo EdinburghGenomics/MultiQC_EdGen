@@ -80,8 +80,9 @@ class MultiqcModule(BaseMultiqcModule):
         if len(gp_output) != 1:
             logger.error("GNUPlot produced no files or unexpected files: {}".format(gp_output))
 
-        # FIXME - title can be better.
-        plot_title = plot_file = gp_output[0]
+        # FIXME - title can maybe be better. For now, here's some string munging
+        plot_file = gp_output[0]
+        plot_title = ' '.join([ w.capitalize() for n in plot_file.split('_') if '-' in n for w in n.split('-') ])
 
         self.interop_plots[plot_title] = dict(plot_file=plot_file)
         self.interop_plot_files[plot_title] = os.path.join(tmp_dir, plot_file)
