@@ -13,6 +13,7 @@ from pprint import pprint
 # is done indirectly via site.addsitedir()
 
 # To ensure we see modules in my home dir.
+print("Adding site dir " + site.USER_SITE)
 site.addsitedir(site.USER_SITE)
 
 import pkg_resources

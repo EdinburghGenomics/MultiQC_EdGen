@@ -84,7 +84,7 @@ class edgen_before_report():
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py.
         lanes = self.lanes #should be set already
-        lane_str = config.kwargs.get('lane', '')
+        lane_str = config.kwargs.get('lane') or ''
 
         if lane_str.startswith('lane'):
             self.lane = int(lane_str[4:])

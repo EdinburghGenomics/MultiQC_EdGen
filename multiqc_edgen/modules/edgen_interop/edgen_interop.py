@@ -7,7 +7,8 @@ import re, os
 
 import base64
 from html import escape as html_escape
-from subprocess import call
+# This needs Python >=3.5!
+from subprocess import run
 
 from multiqc import config
 from multiqc.modules.base_module import BaseMultiqcModule
@@ -69,7 +70,20 @@ class MultiqcModule(BaseMultiqcModule):
         # Now we need to start GNUPlot within the new empty dir and to pipe in the
         # commands.
         # assume gnuplot is in the path
-        retcode = call("gnuplot", stdin=f['f'], cwd=tmp_dir)
+
+        def munger(it, fn=''):
+            # Heat maps want to be wider to align with line graphs
+            width = 890 if 'heatmap' in fn else 800
+            height = 450
+            for line in it:
+                if line.startswith('set terminal'):
+                    line = "set terminal pngcairo size {},{} enhanced font 'sans,10'\n".format(width, height)
+                yield line
+
+        retcode = run( "gnuplot",
+                       input = ''.join(munger(f['f'], f['fn'])),
+                       cwd = tmp_dir,
+                       universal_newlines = True).returncode
 
         if retcode != 0:
             log.warning("GNUPlot returned {}.".format(retcode))
@@ -82,7 +96,7 @@ class MultiqcModule(BaseMultiqcModule):
 
         # FIXME - title can maybe be better. For now, here's some string munging
         plot_file = gp_output[0]
-        plot_title = ' '.join([ w.capitalize() for n in plot_file.split('_') if '-' in n for w in n.split('-') ])
+        plot_title = ' '.join([ w.capitalize() for n in plot_file.split('_') if '-' in n for w in n.split('-') ]).split('.')[0]
 
         self.interop_plots[plot_title] = dict(plot_file=plot_file)
         self.interop_plot_files[plot_title] = os.path.join(tmp_dir, plot_file)
