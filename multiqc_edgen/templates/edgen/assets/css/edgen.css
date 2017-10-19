@@ -85,3 +85,11 @@
   height: 597px;
   border: none;
 }
+
+/* Slightly smaller title in the nav bar please */
+.side-nav .side-nav-title a {
+    color: #333;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 6px 0;
+ }
