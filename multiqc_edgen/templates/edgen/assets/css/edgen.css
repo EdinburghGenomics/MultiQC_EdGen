@@ -89,11 +89,13 @@
 /* Slightly smaller title in the nav bar please */
 .side-nav .side-nav-title {
     color: #333;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: normal;
     padding: 6px 0;
 
 }
 .side-nav .side-nav-title a {
     color: #337ab7
+    font-size: 12px;
+    padding: 4px 0;
 }
