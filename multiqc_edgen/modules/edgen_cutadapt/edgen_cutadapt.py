@@ -18,6 +18,16 @@ from multiqc.modules.base_module import BaseMultiqcModule
 # MultiQC modules log.
 log = logging.getLogger('multiqc.modules.' + __name__)
 
+def pct(n, d, nan=0.0, mul=100.0):
+    """ Calculate a percentage (or ratio) while avoiding division by zero errors.
+        Strictly speaking we should have nan=float('nan') but for practical
+        purposes we'll normally report 0.0.
+                        """
+    try:
+        return ( float(n) * mul ) / float(d)
+    except (ZeroDivisionError, TypeError):
+        return nan
+
 class MultiqcModule(BaseMultiqcModule):
     """
     Cutadapt module class, parses stdout logs.
@@ -66,6 +76,7 @@ class MultiqcModule(BaseMultiqcModule):
 
     def parse_cutadapt_log(self, f):
         """ Go through one log file looking for cutadapt output """
+        log.debug("Processing file {}".format(f['fn']))
         fh = f['f']
         regexes = {
                 'bp_processed': "Total basepairs processed:\s*([\d,]+) bp",
@@ -126,31 +137,35 @@ class MultiqcModule(BaseMultiqcModule):
         """
         for s_name, d in self.cutadapt_data.items():
             if 'bp_processed' in d and 'bp_written' in d:
-                self.cutadapt_data[s_name]['percent_trimmed'] = 100 * \
-                    ( float(d['bp_processed'] - d['bp_written'])
-                      / d['bp_processed'] )
+                self.cutadapt_data[s_name]['percent_trimmed'] = pct(
+                                            float(d['bp_processed']) - d['bp_written'],
+                                            d['bp_processed'] )
             elif 'bp_processed' in d and 'bp_trimmed' in d:
-                self.cutadapt_data[s_name]['percent_trimmed'] = 100 * \
-                    ( (float(d.get('bp_trimmed', 0)) + float(d.get('quality_trimmed', 0)))
-                      / d['bp_processed'] )
+                self.cutadapt_data[s_name]['percent_trimmed'] = pct(
+                                            float(d.get('bp_trimmed', 0)) + float(d.get('quality_trimmed', 0)),
+                                            d['bp_processed'] )
 
             #Re-format the cutadapt_trimmed_histo to be more useful for our purposes.
             lh = self.cutadapt_data[s_name]['length_histo'] = self.get_length_histo(s_name)
 
             #Use this to ask how many of the sequences were less than SIZE_CUTOFF
-            self.cutadapt_data[s_name]['percent_short'] = 100 * \
-                sum(lh[:self.SIZE_CUTOFF]) / sum(lh[:])
+            self.cutadapt_data[s_name]['percent_short'] = pct(
+                                            sum(lh[:self.SIZE_CUTOFF]), sum(lh[:]) )
 
 
     def get_length_histo(self, s_name):
         """Calculate the lengths of sequences after trimming, by subtracting the trimmed
            values from the sequence length. For visualising short sequences and dimers this
            makes more sense than a raw plot of bases trimmed.
-           We assume all the sequences are the same length - if not, this will still produce
+           We assume all the input sequences are the same length - if not, this will still produce
            an array of numbers but they will be wrong.
         """
         cdata = self.cutadapt_data[s_name]
         cth = self.cutadapt_trimmed_histo[s_name]
+
+        if not cth:
+            # No reads were trimmed. Were any even processed?
+            return [ cdata['r_processed'] ] if cdata['r_processed'] else []
 
         #Infer read length
         read_length = max( (cdata['bp_processed'] // cdata['r_processed']),
@@ -211,10 +226,10 @@ class MultiqcModule(BaseMultiqcModule):
         #After doing that, we can divide all numbers by the total to get a percentage plot.
         #Also, the lists need to be supplied as dicts
         acc_len_10 = { k: dict(enumerate(accumulate(v['length_histo'][:11]))) for k, v in self.cutadapt_data.items() }
-        acc_perc_10 = { k: {k2: 100*l/self.cutadapt_data[k]['r_processed'] for k2, l in v.items()} for k, v in acc_len_10.items() }
+        acc_perc_10 = { k: {k2: pct(l,self.cutadapt_data[k]['r_processed']) for k2, l in v.items()} for k, v in acc_len_10.items() }
 
         acc_len = { k: dict(enumerate(accumulate(v['length_histo']))) for k, v in self.cutadapt_data.items() }
-        acc_perc = { k: {k2: 100*l/self.cutadapt_data[k]['r_processed'] for k2, l in v.items()} for k, v in acc_len.items() }
+        acc_perc = { k: {k2: pct(l,self.cutadapt_data[k]['r_processed']) for k2, l in v.items()} for k, v in acc_len.items() }
 
         plot = linegraph.plot([ acc_perc_10, acc_len_10, acc_perc, acc_len ], pconfig)
 
