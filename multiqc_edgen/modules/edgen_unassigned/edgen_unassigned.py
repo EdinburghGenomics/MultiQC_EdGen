@@ -35,7 +35,8 @@ class MultiqcModule(BaseMultiqcModule):
         # There should just be one report, but I'll allow for there to be many
         self.reports = []
 
-        html = '<div id="unassigned"{}>'.format(self.hidediv)
+        html = ''
+        #html += '<div id="unassigned"{}>'.format(self.hidediv)
 
         # Move all the files into the report and link them
         for n, f in enumerate(self.find_log_files('edgen_unassigned', filehandles=True)):
@@ -46,8 +47,8 @@ class MultiqcModule(BaseMultiqcModule):
             # Copy the file
             with open(rep_savpath, 'w') as ofh:
                 ofh.write(f['f'].read())
-            html = '<a href="{}">View tables of unassigned barcodes</a><br />'.format(rep_relpath)
-        html += '</div>'
+            html += '<a href="{}">View tables of unassigned barcodes</a><br />'.format(rep_relpath)
+        #html += '</div>'
 
         # Abort if none found
         log.info("Found {} reports".format(len(self.reports)))
