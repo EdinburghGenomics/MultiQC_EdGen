@@ -3,3 +3,5 @@ edgen_interop:
 edgen_cutadapt:
     contents: 'This is cutadapt'
     shared: true
+edgen_unassigned:
+    fn: '*.unassigned'

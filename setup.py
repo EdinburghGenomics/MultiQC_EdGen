@@ -27,8 +27,8 @@ setup(
     description = "MultiQC plugin for Edinburgh Genomics",
     long_description = __doc__,
     keywords = 'bioinformatics',
-    url = 'https://github.com/???',
-    download_url = 'https://github.com/???',
+    url = 'http://gitlab.genepool.private/production-team/MultiQC_EdGen',
+    download_url = 'http://gitlab.genepool.private/production-team/MultiQC_EdGen',
     license = 'MIT',
     packages = find_packages(),
     include_package_data = True,
@@ -44,6 +44,7 @@ setup(
         'multiqc.modules.v1': [
             'edgen_interop  = multiqc_edgen.modules.edgen_interop:MultiqcModule',
             'edgen_cutadapt = multiqc_edgen.modules.edgen_cutadapt:MultiqcModule',
+            'edgen_unassigned = multiqc_edgen.modules.edgen_unassigned:MultiqcModule',
         ],
         # Template that has our branding and space for the meta-data to appear.
         'multiqc.templates.v1': [
