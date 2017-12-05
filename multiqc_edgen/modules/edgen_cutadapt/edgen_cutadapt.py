@@ -145,7 +145,9 @@ class MultiqcModule(BaseMultiqcModule):
                                             float(d.get('bp_trimmed', 0)) + float(d.get('quality_trimmed', 0)),
                                             d['bp_processed'] )
 
-            #Re-format the cutadapt_trimmed_histo to be more useful for our purposes.
+            #Re-work the cutadapt_trimmed_histo to be more useful for our purposes, showing
+            #length after trimming and filling in all zeros.
+            #(we don't tot up cumulative values at this point though)
             lh = self.cutadapt_data[s_name]['length_histo'] = self.get_length_histo(s_name)
 
             #Use this to ask how many of the sequences were less than SIZE_CUTOFF
@@ -163,16 +165,24 @@ class MultiqcModule(BaseMultiqcModule):
         cdata = self.cutadapt_data[s_name]
         cth = self.cutadapt_trimmed_histo[s_name]
 
+        #If no reads were processed we just have to return an empty list
+        if not cdata['r_processed']:
+            return []
+
+        '''
         if not cth:
             # No reads were trimmed. Were any even processed?
             return [ cdata['r_processed'] ] if cdata['r_processed'] else []
+        '''
 
         #Infer read length
-        read_length = max( (cdata['bp_processed'] // cdata['r_processed']),
-                           *cth.keys() )
+        read_length = max([ (cdata['bp_processed'] // cdata['r_processed']),
+                            *cth.keys() ])
 
-        # Return a list indexed by trimmed_length tl from 0 to read_length inclusive
-        # The final value will be all the untrimmed reads which are not in ctl.
+        # Return a list indexed by post_trim_length (tl) from 0 to read_length inclusive.
+        # Missing keys in cth will be replaced with zeros.
+        # The final entry will be all the untrimmed reads which are not in ctl, which we
+        # need to calculate.
         return [ cth.get(read_length-tl,0) for tl in range(read_length) ] + \
                [ cdata['r_processed'] - sum( cth.values() ) ]
 
@@ -183,16 +193,15 @@ class MultiqcModule(BaseMultiqcModule):
             trimming.
         """
 
-        headers = {}
-        headers['percent_short'] = {
+        headers = dict( percent_short = {
             'title': '% Dimer',
             'description': '% of sequences <{}bp after adapter trimming'.format(self.SIZE_CUTOFF),
             'max': 100,
             'min': 0,
             'suffix': '%',
             'scale': 'RdYlBu-rev',
-            'format': '{:.3f}'
-        }
+            'format': '{:.4f}'
+        } )
         self.general_stats_addcols(self.cutadapt_data, headers)
 
 
