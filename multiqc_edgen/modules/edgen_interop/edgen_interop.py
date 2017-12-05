@@ -121,9 +121,10 @@ class MultiqcModule(BaseMultiqcModule):
 
             # Or else move it to a file we want to keep and link <img>
             else:
+                plot_savpath = os.path.join(config.data_dir, 'multiqc_plots', '{}.png'.format(pid))
                 plot_relpath = os.path.join(config.data_dir_name, 'multiqc_plots', '{}.png'.format(pid))
                 #Not sure about this...
-                os.rename(ipf, plot_relpath)
+                os.rename(ipf, plot_savpath)
                 html = '<div id="{}"{}><img style="border:none" src="{}" /></div>'.format(pid, hidediv, plot_relpath)
 
             yield dict(name=ipt, plot=html)

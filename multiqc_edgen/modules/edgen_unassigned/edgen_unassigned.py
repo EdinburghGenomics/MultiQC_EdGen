@@ -40,10 +40,11 @@ class MultiqcModule(BaseMultiqcModule):
         # Move all the files into the report and link them
         for n, f in enumerate(self.find_log_files('edgen_unassigned', filehandles=True)):
             self.reports.append(f['fn'])
-            rep_relpath = os.path.join(config.data_dir, 'unassigned{}.html'.format(n))
+            rep_savpath = os.path.join(config.data_dir, 'unassigned{}.html'.format(n))
+            rep_relpath = os.path.join(config.data_dir_name, 'unassigned{}.html'.format(n))
 
             # Copy the file
-            with open(rep_relpath, 'w') as ofh:
+            with open(rep_savpath, 'w') as ofh:
                 ofh.write(f['f'].read())
             html = '<a href="{}"/>View tables of unassigned barcodes<br />'.format(rep_relpath)
         html += '</div>'
