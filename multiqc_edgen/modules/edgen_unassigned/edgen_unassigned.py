@@ -46,7 +46,7 @@ class MultiqcModule(BaseMultiqcModule):
             # Copy the file
             with open(rep_savpath, 'w') as ofh:
                 ofh.write(f['f'].read())
-            html = '<a href="{}"/>View tables of unassigned barcodes<br />'.format(rep_relpath)
+            html = '<a href="{}">View tables of unassigned barcodes</a><br />'.format(rep_relpath)
         html += '</div>'
 
         # Abort if none found
