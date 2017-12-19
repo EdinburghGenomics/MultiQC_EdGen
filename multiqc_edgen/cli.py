@@ -24,3 +24,9 @@ lane = click.option('--lane', 'lane',
     type = str,
     help = 'Say which lane this report relates to.'
 )
+
+# And this
+lane = click.option('--pipeline_status', 'pipeline_status',
+    type = str,
+    help = 'What state is the pipeline in when making this report?'
+)

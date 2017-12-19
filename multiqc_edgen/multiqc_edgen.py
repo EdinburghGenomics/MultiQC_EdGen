@@ -61,7 +61,10 @@ class edgen_before_report():
 
         #I think the idea is to call absolutely everything from the constructor!
         self.yaml_data = dict()
-        self.yaml_flat = dict()
+        self.yaml_flat = OrderedDict()
+
+        if self.pipeline_status:
+            self.yaml_data['Pipeline Status'] = {'Pipeline Status': self.pipeline_status}
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
@@ -118,15 +121,16 @@ class edgen_before_report():
 
 
     def yaml_to_html(self, keys=None, skip=()):
-        """Transform the YAML into HTML as a series of dl/dt/dd elements, though I could also
+        """Transform the metadata into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
 
            If keys is supplied it must be a list of (printable, yaml_key) pairs.
 
-           TODO - I think we're going to need to break this out into multiple tables.
+           TODO - I think we're going to need to break this out into multiple tables or summat.
+                  For now I'm just using yaml_flat, which has already been sorted for me.
         """
         if keys is None:
-            keys = [ (n, n) for n in sorted(self.yaml_flat.keys()) ]
+            keys = [ (n, n) for n in self.yaml_flat.keys() ]
         keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
@@ -182,9 +186,12 @@ class edgen_before_report():
         for y in yamls:
             with open(y) as yfh:
                 log.info("Loading metadata from {}".format(y))
+                # The point of this is to allow new sections to replace old ones,
+                # including removing keys.
                 self.yaml_data.update( yaml.safe_load(yfh) )
 
-        self.yaml_flat = { k: v for d in self.yaml_data.values() for k, v in d.items() }
+        for sk, sv in sorted(self.yaml_data.items()):
+            self.yaml_flat.update(sorted(sv.items()))
 
 
 class edgen_finish():

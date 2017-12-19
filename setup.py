@@ -55,6 +55,7 @@ setup(
             'enable = multiqc_edgen.cli:enable_edgen',
             'run_id = multiqc_edgen.cli:run_id',
             'lane   = multiqc_edgen.cli:lane',
+            'pipeline_status = multiqc_edgen.cli:pipeline_status',
         ],
         # Hooks.
         'multiqc.hooks.v1': [
