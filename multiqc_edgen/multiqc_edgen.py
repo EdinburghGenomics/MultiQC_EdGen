@@ -78,6 +78,10 @@ class edgen_before_report():
         if self.lane:
             config.title += ' lane {}'.format(self.lane)
 
+        #Slightly different title for the <title> tag
+        config.ptitle = self.yaml_flat.get('Run ID', '[unknown run]') + \
+            ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
+
     def make_navbar(self):
         """Make the navigation between reports for all the lanes on the run.
         """
