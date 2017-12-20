@@ -63,6 +63,7 @@ class edgen_before_report():
         self.yaml_data = dict()
         self.yaml_flat = OrderedDict()
 
+        self.pipeline_status = config.kwargs.get('pipeline_status')
         if self.pipeline_status:
             self.yaml_data['Pipeline Status'] = {'Pipeline Status': self.pipeline_status}
         self.load_all_yaml()
@@ -70,33 +71,44 @@ class edgen_before_report():
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html(skip='LaneCount')
 
-        # How many lanes are there in this run?
+        # How many lanes are there in this run? And which are we reporting on?
         self.lanes = int(self.yaml_flat.get('LaneCount') or 1)
+        self.set_lane()
 
         # Add navigation between lanes on the run.
         report.edgen_run['navbar'] = self.make_navbar()
 
         # Fix the report title to be correct based on the metadata
-        config.title = "Run report for " + self.linkify(self.yaml_flat.get('Run ID', '[unknown run]'))
+        self.run_id = config.kwargs.get('rid') or self.yaml_flat.get('Run ID', '[unknown run]')
+        config.title = "Run report for " + self.linkify(self.run_id)
         if self.lane:
             config.title += ' lane {}'.format(self.lane)
 
         #Slightly different title for the <title> tag
-        config.ptitle = self.yaml_flat.get('Run ID', '[unknown run]') + \
-            ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
+        config.ptitle = self.run_id + ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
+
+    def set_lane(self):
+        """Work out what lane we're reporting on, if any.
+           Lane 0 is the overview report.
+        """
+        lane_str = config.kwargs.get('lane') or ''
+
+        if lane_str.startswith('lane'):
+            self.lane = int(lane_str[4:])
+        elif lane_str[0] in '123456789':
+            self.lane = int(lane_str)
+        else:
+            self.lane = 0
+
+        return self.lane
 
     def make_navbar(self):
         """Make the navigation between reports for all the lanes on the run.
         """
         # And the lane this report refers to should be passed with the --lane parameter;
         # see cli.py.
-        lanes = self.lanes #should be set already
-        lane_str = config.kwargs.get('lane') or ''
-
-        if lane_str.startswith('lane'):
-            self.lane = int(lane_str[4:])
-        else:
-            self.lane = 0
+        # self.lanes should be set already from the yml
+        # self.lane should be set by the caller too
 
         # This was true until we added the separate overview. Maybe we can still have a single report
         # for single-lane machines?
@@ -104,9 +116,9 @@ class edgen_before_report():
         #    return '' # No navigation necessary
 
         res = ['<div id="page_browser"><div id="page_browser_header">',
-               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=lanes),
+               '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=self.lanes),
                '<ul id="page_browser_tabs">']
-        for l in reversed( range(lanes+1) ):
+        for l in reversed( range(self.lanes+1) ):
             # Reversed because that's how the CSS layout works.
             llabel = l if l else 'Overview'
             llink = 'lane{}'.format(l) if l else 'overview'

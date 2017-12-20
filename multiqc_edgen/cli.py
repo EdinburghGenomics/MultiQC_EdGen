@@ -26,7 +26,7 @@ lane = click.option('--lane', 'lane',
 )
 
 # And this
-lane = click.option('--pipeline_status', 'pipeline_status',
+pipeline_status = click.option('--pipeline_status', 'pipeline_status',
     type = str,
     help = 'What state is the pipeline in when making this report?'
 )
