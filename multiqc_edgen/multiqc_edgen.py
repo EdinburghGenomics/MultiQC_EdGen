@@ -85,7 +85,7 @@ class edgen_before_report():
             config.title += ' lane {}'.format(self.lane)
 
         #Slightly different title for the <title> tag
-        config.ptitle = self.run_id + ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
+        config.ptitle = self.textify(self.run_id) + ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
 
     def set_lane(self):
         """Work out what lane we're reporting on, if any.
@@ -178,6 +178,14 @@ class edgen_before_report():
             return "<a href='data:text/plain;charset=utf-8;base64,{}'>{}</a>".format(
                         base64.b64encode(f.read()).decode('utf-8'),
                         escape(val[0]) )
+
+    def textify(self, val):
+        """Like linkify, but just gets the text, ensuring it's quoted properly
+        """
+        if type(val) is not list or len(val) != 2:
+            return escape(str(val))
+
+        return escape(str(val[0]))
 
     def load_all_yaml(self):
         """Finds all files matching run_info.*.yml and loads them in order.
