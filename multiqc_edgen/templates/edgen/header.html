@@ -40,8 +40,28 @@ Also includes some extra style info.
     {%  endfor %}
   </ul>
   {% endif %}
-  - <a href="..">see all versions</a></p>
+  - <span id='version_alert'><a href="..">see all versions</a></span></p>
 </div>
+
+<script>
+    /* Here is a little way to see if a newer version is available,
+       assuming the document is stored on web1 (or wherever) in the
+       standard way in v/0000 directories.
+       We may assume jQuery is already loaded.
+    */
+    $(document).ready(function() {
+        var cdir = window.location.href.split('/');
+        cdir.pop();
+        var cnum = cdir.pop(); // eg. 0001
+        var nextnum = ("0000" + (parseInt(cnum) + 1)).slice(-4);
+        cdir.push(nextnum);
+
+        $.get(cdir.join('/'), function(data) {
+            $("#version_alert").html('<em><a href=".." style="color:orchid">newer version available!</a></em>');
+        });
+    });
+
+</script>
 
 <hr>
 
