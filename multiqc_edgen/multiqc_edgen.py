@@ -169,15 +169,19 @@ class edgen_before_report():
         if re.match('https?://', val[1]):
             return "<a href='{}'>{}</a>".format(val[1], escape(val[0]))
 
-        # File upload is trickier
+        # File upload is trickier, partly due to:
+        #  https://groups.google.com/a/chromium.org/forum/#!topic/blink-dev/GbVcuwg_QjM%5B1-25%5D
         if not os.path.exists(val[1]):
             return "{} (file not found)".format(escape(val[0]))
-
-        # Embed the file
-        with open(val[1], "rb") as f:
-            return "<a href='data:text/plain;charset=utf-8;base64,{}'>{}</a>".format(
-                        base64.b64encode(f.read()).decode('utf-8'),
-                        escape(val[0]) )
+        else:
+            # Make a fake extension to keep Windows happy
+            fake_extn = '.csv' if '.csv.' in val[0] else ''
+            # Embed the file
+            with open(val[1], "rb") as f:
+                return "<a download='{}' target='_blank' href='data:text/plain;charset=utf-8;base64,{}'>{}</a>".format(
+                            escape(val[0]) + fake_extn,
+                            base64.b64encode(f.read()).decode('utf-8'),
+                            escape(val[0]) )
 
     def textify(self, val):
         """Like linkify, but just gets the text, ensuring it's quoted properly
