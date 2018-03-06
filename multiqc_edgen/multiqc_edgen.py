@@ -152,7 +152,7 @@ class edgen_before_report():
         # Key names may be in the form x//y in which case order on x and use y as the label,
         # overriding any previous ordering and structuring.
         keys = [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x <  'n0' ] + \
-               [ y, k for y, k in keys if '//' not in y ] + \
+               [ (y, k) for y, k in keys if '//' not in y ] + \
                [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x >= 'n0' ]
 
         keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
