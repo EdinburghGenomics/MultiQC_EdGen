@@ -133,12 +133,12 @@ class edgen_before_report():
             # FIXME - this is all a bit hacky
             disabled = ''
             if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
-                disabled=' disabled="true"'
+                disabled=' style="opacity: .5; pointer-events: none; tabindex: -1"'
 
             if l == self.lane:
                 res.append('<li class="active"><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
             else:
-                res.append('<li {disabled}><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
+                res.append('<li{disabled}><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
         res.append("</ul></div></div>")
 
         return '\n'.join(res)
