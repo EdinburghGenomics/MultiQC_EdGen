@@ -78,7 +78,7 @@ class edgen_before_report():
         report.edgen_run['metadata1'] = self.yaml_to_html(skip='LaneCount')
 
         # How many lanes are there in this run? And which are we reporting on?
-        self.lanes = int(self.yaml_flat.get('LaneCount') or 1)
+        self.lanes = int(self.yaml_flat.get('LaneCount') or 0)
         self.set_lane()
 
         # Add navigation between lanes on the run.
@@ -88,7 +88,7 @@ class edgen_before_report():
         self.run_id = config.kwargs.get('rid') or self.yaml_flat.get('Run ID', '[unknown run]')
         config.title = "Run report for " + self.linkify(self.run_id)
         if self.lane:
-            config.title += ' lane {}'.format(self.lane)
+            config.title += ' lane&nbsp;{}'.format(self.lane)
 
         #Slightly different title for the <title> tag
         config.ptitle = self.textify(self.run_id) + ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
@@ -129,10 +129,16 @@ class edgen_before_report():
             llabel = l if l else 'Overview'
             llink = 'lane{}'.format(l) if l else 'overview'
 
+            # If this is the overview and we're not demultiplexed, suppress the other links
+            # FIXME - this is all a bit hacky
+            disabled = ''
+            if (not l) and (not 'post_demux_info' in sef.yaml_data):
+                disabled=' disabled="true"'
+
             if l == self.lane:
                 res.append('<li class="active"><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
             else:
-                res.append('<li><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
+                res.append('<li {disabled}><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
         res.append("</ul></div></div>")
 
         return '\n'.join(res)
