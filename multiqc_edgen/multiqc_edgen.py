@@ -132,7 +132,7 @@ class edgen_before_report():
             # If this is the overview and we're not demultiplexed, suppress the other links
             # FIXME - this is all a bit hacky
             disabled = ''
-            if (not l) and (not 'post_demux_info' in self.yaml_data):
+            if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
                 disabled=' disabled="true"'
 
             if l == self.lane:
