@@ -10,6 +10,7 @@ from glob import glob
 import yaml
 import base64
 from cgi import escape
+from datetime import datetime
 
 from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
