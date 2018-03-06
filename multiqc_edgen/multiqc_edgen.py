@@ -66,6 +66,11 @@ class edgen_before_report():
         self.pipeline_status = config.kwargs.get('pipeline_status')
         if self.pipeline_status:
             self.yaml_data['Pipeline Status'] = {'Pipeline Status': self.pipeline_status}
+
+            # This was requested too, though it's a bit hacky.
+            if self.pipeline_status == "Completed QC":
+                self.yaml_data['Pipeline Status']['t4//Pipeline Completed'] = datetime.now().ctime()
+
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
@@ -143,6 +148,13 @@ class edgen_before_report():
         """
         if keys is None:
             keys = [ (n, n) for n in self.yaml_flat.keys() ]
+
+        # Key names may be in the form x//y in which case order on x and use y as the label,
+        # overriding any previous ordering and structuring.
+        keys = [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x <  'n0' ] + \
+               [ y, k for y, k in keys if '//' not in y ] + \
+               [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x >= 'n0' ]
+
         keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
