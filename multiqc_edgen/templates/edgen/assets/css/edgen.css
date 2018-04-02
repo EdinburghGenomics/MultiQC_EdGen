@@ -113,6 +113,13 @@
     background: #f7c780;
 }
 
+.lui_state_true h1 {
+    background: #a2f9a5;
+}
+
+.lui_state_false h1 {
+    background: #f7c780;
+}
 
 /* Slightly smaller title in the nav bar please */
 .side-nav .side-nav-title {

@@ -67,9 +67,7 @@ function lui_show_flags(browser_div, json_data){
 
         // Set the tab colours to say which lanes are usable or not, by setting
         // the class to "lui_state true" etc.
-        browser_div.find("li#nav_tab_" + laneid).attr("class",
-                browser_div.find("li#nav_tab_" + laneid).attr("class") + " " +
-            "lui_state_" + infos["Lane QC"]);
+        browser_div.find("li#nav_tab_" + laneid).addClass("lui_state_" + infos["Lane QC"]);
 
         // Set the content of page_browser_lui and fade it in
         if(laneid == active_lane){
@@ -89,6 +87,9 @@ function lui_show_flags(browser_div, json_data){
             } );
 
             browser_div.find("div#page_browser_lui").fadeIn();
+
+            // Also set the side bar
+            $('.side-nav-wrapper').addClass("lui_state_" + infos["Lane QC"]);
         }
     }
 
