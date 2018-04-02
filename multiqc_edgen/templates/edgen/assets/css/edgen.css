@@ -86,6 +86,34 @@
   border: none;
 }
 
+/* Deactivate inactive tabs when we only have the summary to show */
+#page_browser.page_browser_overview li:not(.active) {
+  opacity: .5;
+  pointer-events: none;
+  tabindex: -1
+}
+
+/* Coloured tabs when the lane flag status gets set */
+#page_browser li.lui_state_true {
+  background: #a2f9a5;
+}
+#page_browser li.lui_state_false {
+  background: #f7c780;
+}
+
+#page_browser div#page_browser_lui {
+    padding: 6px 8px;
+    background-color: #efefff ;
+    display: block;
+}
+#page_browser div#page_browser_lui.lui_state_true {
+    background: #a2f9a5;
+}
+#page_browser div#page_browser_lui.lui_state_false {
+    background: #f7c780;
+}
+
+
 /* Slightly smaller title in the nav bar please */
 .side-nav .side-nav-title {
     color: #333;

@@ -16,7 +16,7 @@ from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
 
 import multiqc
-from multiqc.utils import report, util_functions, config
+from multiqc.utils import report, config
 
 log = logging.getLogger('multiqc')
 
@@ -81,14 +81,14 @@ class edgen_before_report():
         self.lanes = int(self.yaml_flat.get('LaneCount') or 0)
         self.set_lane()
 
-        # Add navigation between lanes on the run.
-        report.edgen_run['navbar'] = self.make_navbar()
-
         # Fix the report title to be correct based on the metadata
         self.run_id = config.kwargs.get('rid') or self.yaml_flat.get('Run ID', '[unknown run]')
         config.title = "Run report for " + self.linkify(self.run_id)
         if self.lane:
             config.title += ' lane&nbsp;{}'.format(self.lane)
+
+        # Add navigation between lanes on the run.
+        report.edgen_run['navbar'] = self.make_navbar()
 
         #Slightly different title for the <title> tag
         config.ptitle = self.textify(self.run_id) + ( ' lane {}'.format(self.lane) if self.lane else  ' run report' )
@@ -111,17 +111,24 @@ class edgen_before_report():
     def make_navbar(self):
         """Make the navigation between reports for all the lanes on the run.
         """
-        # And the lane this report refers to should be passed with the --lane parameter;
+        # The specific lane this report refers to should be passed with the --lane parameter;
         # see cli.py.
         # self.lanes should be set already from the yml
         # self.lane should be set by the caller too
 
         # This was true until we added the separate overview. Maybe we can still have a single report
-        # for single-lane machines?
+        # for single-lane machines? (No, that's not desirable.)
         #if lanes <= 1:
         #    return '' # No navigation necessary
 
-        res = ['<div id="page_browser"><div id="page_browser_header">',
+        # If this is the overview and we're not demultiplexed, suppress the other links
+        # FIXME - this is all a bit hacky
+        page_browser_class = 'page_browser_full'
+        if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
+            page_browser_class = 'page_browser_overview'
+
+        res = ['<div id="page_browser" class="{}" runid="{}">'.format(page_browser_class, self.run_id),
+               '<div id="page_browser_header">',
                '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=self.lanes),
                '<ul id="page_browser_tabs">']
         for l in reversed( range(self.lanes+1) ):
@@ -129,17 +136,13 @@ class edgen_before_report():
             llabel = l if l else 'Overview'
             llink = 'lane{}'.format(l) if l else 'overview'
 
-            # If this is the overview and we're not demultiplexed, suppress the other links
-            # FIXME - this is all a bit hacky
-            disabled = ''
-            if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
-                disabled=' style="opacity: .5; pointer-events: none; tabindex: -1"'
+            lactive = 'class="active"' if l == self.lane else ''
+            res.append(('<li id="nav_tab_{llink}" {lactive}>' + \
+                        '<a href="multiqc_report_{llink}.html">{llabel}</a></li>').format(**locals()))
 
-            if l == self.lane:
-                res.append('<li class="active"><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
-            else:
-                res.append('<li{disabled}><a href="multiqc_report_{llink}.html">{llabel}</a></li>'.format(**locals()))
-        res.append("</ul></div></div>")
+        res.append('</ul></div>')
+        res.append('<div id="page_browser_lui" style="display: none">Status and <button>button</button></div>')
+        res.append('</div>')
 
         return '\n'.join(res)
 
