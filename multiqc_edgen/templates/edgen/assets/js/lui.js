@@ -1,4 +1,10 @@
 /* LUI == Lane Usability Indicator, as read from the Clarity LIMS */
+
+// Global info set by setup. We assume there is only one indicator per page!
+lui_endpoint = null;
+lui_runid = null;
+lui_lane = null;
+
 function lui_setup(){
     // This show it actually runs.
     //window.prompt("Do you think this will work OK?", "No!!!");
@@ -18,22 +24,26 @@ function lui_setup(){
 
     $('#page_browser.page_browser_full').each(function(){
         // Find the active tab to see what lane I am looking at
-        var run_element = $(this)
-        var runid = run_element.attr("runid");
-        console.log("Looking at run " + runid);
+        var browser_div = $(this);
+        lui_runid = browser_div.attr("runid");
+        lui_lane = browser_div.find("li.active").attr('id').substring(8);
+        console.log("Looking at run " + lui_runid  + " lane " + lui_lane);
 
         // Load the infos for all the lanes. Do I want to determine the endpoint like
         // this or do I want to hard-code it to web1?
         //var lri_endpoint = 'http://' + window.location.host + ':8002/v1/run/'
-        var lri_endpoint = 'http://web1.genepool.private:8002/v1/run/'
+
+        // If the user is viewing the report from ahost other than web1 they should see an
+        // "unable to load" message as the CORS headers will not permit a log-in prompt.
+        var lri_endpoint = 'http://web1.genepool.private:8002/v1/run/';
 
         $.ajax({
-            url: lri_endpoint + runid + '/flags',
+            url: lri_endpoint + lui_runid + '/flags',
             type: 'GET',
             dataType: "json",
             xhrFields: { withCredentials: true },
-            success: function(d){ lui_show_flags(run_element, d)},
-            error: function(){ lui_no_flags('load', run_element)},
+            success: function(d){ lui_show_flags(browser_div, d)},
+            error: function(){ lui_no_flags('load', browser_div)},
         });
     });
 }
@@ -54,11 +64,9 @@ function lui_tr(in_val){
 
 
 function lui_show_flags(browser_div, json_data){
-    // Set the tab style for all tabs
-    // Looping through a dict in javascript is annoying.
-    var active_lane = browser_div.find("li.active").attr('id').substring(8);
-    var runid = browser_div.attr("runid");
-    console.log("Selected lane is " + active_lane);
+    /** Set the tab style for all tabs
+     *  Looping through a dict in javascript is annoying.
+     */
 
     var json_keys = Object.keys(json_data);
     for(var idx in json_keys) {
@@ -66,11 +74,14 @@ function lui_show_flags(browser_div, json_data){
         var infos = json_data[laneid];
 
         // Set the tab colours to say which lanes are usable or not, by setting
-        // the class to "lui_state true" etc.
-        browser_div.find("li#nav_tab_" + laneid).addClass("lui_state_" + infos["Lane QC"]);
+        // the class to "lui_state_true" etc.
+        // Remove any previous state first
+        browser_div.find("li#nav_tab_" + laneid).removeClass(
+                                "lui_state_true lui_state_false lui_state_null").addClass(
+                                "lui_state_" + infos["Lane QC"]);
 
-        // Set the content of page_browser_lui and fade it in
-        if(laneid == active_lane){
+        // Set the content of page_browser_lui and fade it in if not already visible.
+        if(laneid == lui_lane){
 
             var button_text = lui_tr(infos["Lane QC"])
             if(infos["Fail Details"]){
@@ -81,35 +92,75 @@ function lui_show_flags(browser_div, json_data){
             browser_div.find("div#page_browser_lui").attr("class", "lui_state_" + infos["Lane QC"]);
 
             browser_div.find("div#page_browser_lui button").text(button_text);
-            browser_div.find("div#page_browser_lui button").click({runid: runid, lane: laneid}, function(e){
+            browser_div.find("div#page_browser_lui button").click(function(e){
                 e.preventDefault();
-                lui_prompt_flag(e.data.runid, e.data.lane, null);
+                // The callback here bakes in the browser_div and takes the JSON created by lui_put_a_flag,
+                // then calls back to this function to show the new status.
+                lui_prompt_flag( function(new_json_data){ browser_div, new_json_data } );
             } );
 
             browser_div.find("div#page_browser_lui").fadeIn();
 
             // Also set the side bar
-            $('.side-nav-wrapper').addClass("lui_state_" + infos["Lane QC"]);
+            $('.side-nav-wrapper').removeClass(
+                            "lui_state_true lui_state_false lui_state_null").addClass(
+                            "lui_state_" + infos["Lane QC"]);
         }
     }
 
 }
 
-function lui_prompt_flag(runid, laneid, ui_update_callback){
-    /** Prompt the user to set the usable flag for the lane
+function lui_prompt_flag(ui_update_callback){
+    /** Prompt the user to set the usable flag for the current lane
         Here we're enforcing that an unusable lane must have a reason and a
         reason implies the lane is not usable, but this is not enforced anywhere else so
         could easily change!
     */
-    response = window.prompt("Click OK to set " + laneid + " usable, or enter a reason to mark it as failed.","");
+    response = window.prompt("Click OK to set " + lui_lane + " usable, or enter a reason to mark it as failed.","");
     if( ! (response === null) ){
-        put_a_flag(runid, laneid, !(response), response, gui_update_callback);
+        lui_put_a_flag(lui_runid, lui_lane, !(response), response, ui_update_callback);
     }
 }
 
-function lui_no_flags(whatever, browser_div){
+function lui_put_a_flag(runid, lane, state, reason, ui_update_callback){
+    /** Sends the JSON to the server. We'll only set one flag at a time.
+    *   Broken out from lui_prompt_flag for ease of testing.
+    *   Note this uses supplied run+lane, not the globals.
+    */
+    var json_payload = {};
+    json_payload[lane] = {"Fail Details": reason, "Lane QC": state};
+
+    // Set the setting and update the UI
+    $.ajax({
+        url: lri_endpoint + lui_runid + '/flags',
+        type: "PUT",
+        data: JSON.stringify(json_payload),
+        dataType: "text", // Response is simply ignored if status is 200
+        xhrFields: { withCredentials: true },
+        success: function(d){ ui_update_callback(json_payload) },
+        // Or else - make an explicit call to the server to confirm the setting.
+        // Except there seems to be some delay from Clarity before I actually see the new value,
+        // so this is suspect and I could only make it work with the arbitrary delay.
+        /*
+        success: function(){
+            new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
+                $.ajax({
+                    url: lri_endpoint + runid + '/flags?lane=' + lane,
+                    type: "GET",
+                    dataType: "json",
+                    xhrFields: { withCredentials: true },
+                    success: function(json_returned){ ui_update_callback(json_returned) }
+                });
+            });
+        }, */
+        error: function(){ no_flags('set', runid + " " + lane)},
+    });
+}
+
+
+function lui_no_flags(action_type, browser_div){
     // TODO - something more better that actually shows the state in the GUI
-    var my_msg = ("Failed to " + whatever + " flags for run <em>" + browser_div.attr("runid") + "</em>" );
+    var my_msg = ("Failed to " + action_type + " usable/unusable flags for run <em>" + lui_runid + "</em>" );
 
     browser_div.find("div#page_browser_lui").html('<span>' + my_msg + '</span>');
     browser_div.find("div#page_browser_lui").fadeIn();
