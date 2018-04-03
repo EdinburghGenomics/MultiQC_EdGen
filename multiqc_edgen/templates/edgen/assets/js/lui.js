@@ -43,7 +43,7 @@ function lui_setup(){
             dataType: "json",
             xhrFields: { withCredentials: true },
             success: function(d){ lui_show_flags(browser_div, d)},
-            error: function(){ lui_no_flags('load', browser_div)},
+            error: function(){ lui_no_flags(browser_div, 'load')},
         });
     });
 }
@@ -96,7 +96,9 @@ function lui_show_flags(browser_div, json_data){
                 e.preventDefault();
                 // The callback here bakes in the browser_div and takes the JSON created by lui_put_a_flag,
                 // then calls back to this function to show the new status.
-                lui_prompt_flag( $(this), function(new_json_data){ browser_div, new_json_data } );
+                lui_prompt_flag( $(this),
+                                 function(new_json_data){ lui_show_flags(browser_div, new_json_data) },
+                                 function(new_json_data){ lui_no_flags(browser_div, 'save') } );
             } );
 
             browser_div.find("div#page_browser_lui").fadeIn();
@@ -110,7 +112,7 @@ function lui_show_flags(browser_div, json_data){
 
 }
 
-function lui_prompt_flag(button_clicked, ui_update_callback){
+function lui_prompt_flag(button_clicked, ui_update_callback, ui_error_callback){
     /** Prompt the user to set the usable flag for the current lane
         Here we're enforcing that an unusable lane must have a reason and a
         reason implies the lane is not usable, but this is not enforced anywhere else so
@@ -121,11 +123,11 @@ function lui_prompt_flag(button_clicked, ui_update_callback){
         button_clicked.text("Saving flag...");
         button_clicked.attr("disabled", true);
 
-        lui_put_a_flag(lui_runid, lui_lane, !(response), response, ui_update_callback);
+        lui_put_a_flag(lui_runid, lui_lane, !(response), response, ui_update_callback, ui_error_callback);
     }
 }
 
-function lui_put_a_flag(runid, lane, state, reason, ui_update_callback){
+function lui_put_a_flag(runid, lane, state, reason, ui_update_callback, ui_error_callback){
     /** Sends the JSON to the server. We'll only set one flag at a time.
     *   Broken out from lui_prompt_flag for ease of testing.
     *   Note this uses supplied run+lane, not the globals.
@@ -156,12 +158,12 @@ function lui_put_a_flag(runid, lane, state, reason, ui_update_callback){
                 });
             });
         }, */
-        error: function(){ no_flags('set', runid + " " + lane)},
+        error: function(){ ui_error_callback },
     });
 }
 
 
-function lui_no_flags(action_type, browser_div){
+function lui_no_flags(browser_div, action_type){
     // TODO - something more better that actually shows the state in the GUI
     var my_msg = ("Failed to " + action_type + " usable/unusable flags for run <em>" + lui_runid + "</em>" );
 
