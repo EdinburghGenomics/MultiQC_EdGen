@@ -31,14 +31,14 @@ function lui_setup(){
 
         // Load the infos for all the lanes. Do I want to determine the endpoint like
         // this or do I want to hard-code it to web1?
-        //var lri_endpoint = 'http://' + window.location.host + ':8002/v1/run/'
+        //var lui_endpoint = 'http://' + window.location.host + ':8002/v1/run/'
 
         // If the user is viewing the report from ahost other than web1 they should see an
         // "unable to load" message as the CORS headers will not permit a log-in prompt.
-        var lri_endpoint = 'http://web1.genepool.private:8002/v1/run/';
+        lui_endpoint = 'http://web1.genepool.private:8002/v1/run/';
 
         $.ajax({
-            url: lri_endpoint + lui_runid + '/flags',
+            url: lui_endpoint + lui_runid + '/flags',
             type: 'GET',
             dataType: "json",
             xhrFields: { withCredentials: true },
@@ -137,7 +137,7 @@ function lui_put_a_flag(runid, lane, state, reason, ui_update_callback, ui_error
 
     // Set the setting and update the UI
     $.ajax({
-        url: lri_endpoint + lui_runid + '/flags',
+        url: lui_endpoint + lui_runid + '/flags',
         type: "PUT",
         data: JSON.stringify(json_payload),
         dataType: "text", // Response is simply ignored if status is 200
@@ -150,7 +150,7 @@ function lui_put_a_flag(runid, lane, state, reason, ui_update_callback, ui_error
         success: function(){
             new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
                 $.ajax({
-                    url: lri_endpoint + runid + '/flags?lane=' + lane,
+                    url: lui_endpoint + runid + '/flags?lane=' + lane,
                     type: "GET",
                     dataType: "json",
                     xhrFields: { withCredentials: true },
