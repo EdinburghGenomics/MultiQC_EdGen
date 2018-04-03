@@ -113,6 +113,12 @@
     background: #f7c780;
 }
 
+/* Make disabled button look disabled */
+#page_browser button:disabled {
+    opacity: .5;
+    /* border: 1px solid #efefff; */
+}
+
 .lui_state_true h1 {
     background: #a2f9a5;
 }
