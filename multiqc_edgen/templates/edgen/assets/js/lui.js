@@ -96,7 +96,7 @@ function lui_show_flags(browser_div, json_data){
                 e.preventDefault();
                 // The callback here bakes in the browser_div and takes the JSON created by lui_put_a_flag,
                 // then calls back to this function to show the new status.
-                lui_prompt_flag( function(new_json_data){ browser_div, new_json_data } );
+                lui_prompt_flag( $(this), function(new_json_data){ browser_div, new_json_data } );
             } );
 
             browser_div.find("div#page_browser_lui").fadeIn();
@@ -110,7 +110,7 @@ function lui_show_flags(browser_div, json_data){
 
 }
 
-function lui_prompt_flag(ui_update_callback){
+function lui_prompt_flag(button_clicked, ui_update_callback){
     /** Prompt the user to set the usable flag for the current lane
         Here we're enforcing that an unusable lane must have a reason and a
         reason implies the lane is not usable, but this is not enforced anywhere else so
@@ -118,6 +118,9 @@ function lui_prompt_flag(ui_update_callback){
     */
     response = window.prompt("Click OK to set " + lui_lane + " usable, or enter a reason to mark it as failed.","");
     if( ! (response === null) ){
+        button_clicked.text("Saving flag...");
+        button_clicked.attr("disabled", true);
+
         lui_put_a_flag(lui_runid, lui_lane, !(response), response, ui_update_callback);
     }
 }
