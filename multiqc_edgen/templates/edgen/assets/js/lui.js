@@ -158,7 +158,7 @@ function lui_put_a_flag(runid, lane, state, reason, ui_update_callback, ui_error
                 });
             });
         }, */
-        error: function(){ ui_error_callback },
+        error: function(){ ui_error_callback() },
     });
 }
 
