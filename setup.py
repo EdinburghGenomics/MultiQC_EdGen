@@ -35,6 +35,7 @@ setup(
     package_data = { '': ['utils/*.yaml', '*.html',
                           'templates/*/assets/img/*.*',
                           'templates/*/assets/js/*.*',
+                          'templates/*/assets/js/packages/*.*',
                           'templates/*/assets/css/*.*' ] },
     install_requires = [
         'pyyaml',

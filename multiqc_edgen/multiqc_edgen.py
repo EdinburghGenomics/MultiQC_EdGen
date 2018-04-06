@@ -20,7 +20,7 @@ from multiqc.utils import report, config
 
 log = logging.getLogger('multiqc')
 
-#Container for the meta-data. Add keys that match things in the HTML template(s).
+#Container for the meta-data etc. Add keys that match things in the HTML template(s).
 report.edgen_run = dict()
 
 class edgen_before_modules():

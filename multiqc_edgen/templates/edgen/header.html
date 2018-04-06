@@ -14,6 +14,17 @@ Also includes some extra style info.
 <script language="javascript">
   {{ include_file('assets/js/lui.js', b64=False) }}
 </script>
+{% if report.edgen_run.get('include_apng') %}
+<style type="text/css">
+  {{ include_file('assets/css/jquery-ui.min.css', b64=False) }}
+</style>
+<script language="javascript">
+  {{ include_file('assets/js/packages/apng-js-bundle.js', b64=False) }}
+</script>
+<script language="javascript">
+  {{ include_file('assets/js/apng-make-sliders.js', b64=False) }}
+</script>
+{% endif %}
 
 <h1 id="page_title">
   <a class="pull-right" href="http://genomics.ed.ac.uk" target="_blank">
