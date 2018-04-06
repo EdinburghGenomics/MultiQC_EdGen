@@ -7,8 +7,7 @@ import re, os
 
 import base64
 from html import escape as html_escape
-# This needs Python >=3.5!
-from subprocess import run
+from subprocess import Popen, PIPE
 
 from multiqc import config
 from multiqc.modules.base_module import BaseMultiqcModule
@@ -80,10 +79,16 @@ class MultiqcModule(BaseMultiqcModule):
                     line = "set terminal pngcairo size {},{} enhanced font 'sans,10'\n".format(width, height)
                 yield line
 
-        retcode = run( "gnuplot",
-                       input = ''.join(munger(f['f'], f['fn'])),
-                       cwd = tmp_dir,
-                       universal_newlines = True).returncode
+        with Popen( "gnuplot",
+                    stdin = PIPE,
+                    cwd = tmp_dir,
+                    bufsize = 1,
+                    universal_newlines = True) as gnuplot_process:
+
+            for line in munger(f['f'], f['fn']):
+                print(line, file=gnuplot_process.stdin, end='')
+
+            retcode = gnuplot_process.returncode
 
         if retcode != 0:
             log.warning("GNUPlot returned {}.".format(retcode))

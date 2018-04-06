@@ -95,9 +95,9 @@ class edgen_before_report():
 
     def set_lane(self):
         """Work out what lane we're reporting on, if any.
-           Lane 0 is the overview report.
+           Lane 0 is the overview report and the default if no lane is set.
         """
-        lane_str = config.kwargs.get('lane') or ''
+        lane_str = config.kwargs.get('lane') or '0'
 
         if lane_str.startswith('lane'):
             self.lane = int(lane_str[4:])
