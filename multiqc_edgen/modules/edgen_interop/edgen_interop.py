@@ -132,13 +132,14 @@ class MultiqcModule(BaseMultiqcModule):
             log.error("GNUPlot produced unexpected files not matching the expected name.")
 
         # Turn these plots into an APNG using apngasm. This program has funky syntax but
-        # here it works well.
-        apngasm_process = Popen( ["apngasm", "flowcell_all.apng", "flowcell_all_cycle_0001.png"],
+        # here it works well. Note that for our purposes I need the fudged version that
+        # disables inter-frame optimisation.
+        apngasm_process = Popen( ["apngasm-noopt", "flowcell_all.apng", "flowcell_all_cycle_0001.png", "-kp", "-kc"],
                                  stdout = DEVNULL,
                                  cwd = tmp_dir )
         apngasm_process.communicate()
         if apngasm_process.returncode != 0:
-            log.warning("apngasm returned {}.".format(apngasm_process.returncode))
+            log.warning("apngasm-noopt returned {}.".format(apngasm_process.returncode))
 
         # FIXME - title can maybe be better. For now, here's some string munging
         plot_file = "flowcell_all.apng"

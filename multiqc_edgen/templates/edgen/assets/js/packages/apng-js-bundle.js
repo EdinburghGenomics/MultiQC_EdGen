@@ -573,7 +573,9 @@ window["apng_js"] =
 	        key: 'renderFrame',
 	        value: function renderFrame(frame_to_show) {
                 //Copy-paste-a-rama!
-                //Warning - this may well break since we'll end up blending the wrong frames!
+                //Warning - this may well break since I'm clearing the canvas rather than
+                //allowing blending with the previous frame.
+                //I've fudged it by disabling optimisation in apngasm.
                 if(this._currentFrameNumber == frame_to_show % this._apng.frames.length){
                     //No-op!
                     return;
@@ -588,18 +590,11 @@ window["apng_js"] =
 	                }
 	            }
 
-	            if (this._prevFrame && this._prevFrame.disposeOp == 1) {
-	                this.context.clearRect(this._prevFrame.left, this._prevFrame.top, this._prevFrame.width, this._prevFrame.height);
-	            } else if (this._prevFrame && this._prevFrame.disposeOp == 2) {
-	                this.context.putImageData(this._prevFrameData, this._prevFrame.left, this._prevFrame.top);
-	            }
+	            this.context.clearRect(this._prevFrame.left, this._prevFrame.top, this._prevFrame.width, this._prevFrame.height);
 
 	            var frame = this.currentFrame;
 	            this._prevFrame = frame;
 	            this._prevFrameData = null;
-	            if (frame.disposeOp == 2) {
-	                this._prevFrameData = this.context.getImageData(frame.left, frame.top, frame.width, frame.height);
-	            }
 	            if (frame.blendOp == 0) {
 	                this.context.clearRect(frame.left, frame.top, frame.width, frame.height);
 	            }

@@ -68,7 +68,7 @@ Also includes some extra style info.
         var cnum = cdir.pop(); // eg. 0001
         var nextnum = ("0000" + (parseInt(cnum) + 1)).slice(-4);
 
-        if(cdir != "0NaN") {
+        if(nextnum != "0NaN") {
             cdir.push(nextnum);
             $.get(cdir.join('/'), function(data) {
                 $("#version_alert").html('<em><a href="../.." style="color:orchid">newer version available!</a></em>');
