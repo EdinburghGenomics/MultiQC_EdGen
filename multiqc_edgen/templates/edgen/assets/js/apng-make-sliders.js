@@ -13,7 +13,12 @@ function sliderize(div_elem) {
 
   //Allow the label on the slider to be specified
   var slider_label = div_elem.attr('slider_label') || 'Frame to show';
-  var zero_image = "Base"; // FIXME - this should be optional
+  var zero_image = "Base";
+  if(! (div_elem.attr('zero_image') === undefined) )
+  {
+     // zero_image can be "" to simply start with frame 1
+     zero_image = div_elem.attr('zero_image');
+  }
 
   //Add the required elements into the div
   div_elem.html('<canvas width="100" height="100" style="padding-left: 50px"></canvas>' +
@@ -21,15 +26,14 @@ function sliderize(div_elem) {
                 '<div style="padding: 6px; width: 100%">' +
                 '<label for="frame_select">' + slider_label + '</label>' +
                 '<select name="frame_select" id="frame_select" style="margin-left: 8px">' +
-                ( zero_image ? '<option label="' + zero_image + '">0</option>' : '') +
                 '</select></div><div id="frame_slider"></div></div>'
                )
 
   //Meld the slider and the selector, setting the range to the number of frames
-  //in the APNG.
+  //in the APNG. The slider will start at zero even if the first frame is labelled as 1.
   div_elem.find("#frame_slider").slider({
-      min: (zero_image ? 0 : 1),
-      max: apng_frames.frames.length - (zero_image ? 1 : 0),
+      min: 0,
+      max: apng_frames.frames.length - 1,
       range: "min",
       value: div_elem.find("#frame_select")[0].selectedIndex,
       slide: function(event, ui) {
@@ -45,12 +49,18 @@ function sliderize(div_elem) {
 
   //Add items to the selector list to match the slider.
   var fs = div_elem.find("#frame_select")[0]
-  while(fs.length > apng_frames.frames.length){
+  while(fs.length){
     fs.options.remove(fs.options.length - 1)
+  }
+  if(zero_image)
+  {
+    var opt = document.createElement('option');
+    opt.text = String(zero_image);
+    fs.add(opt, null)
   }
   while(fs.length < apng_frames.frames.length){
     var opt = document.createElement('option');
-    opt.text = String(fs.length);
+    opt.text = String(zero_image ? fs.length : fs.length + 1);
     fs.add(opt, null)
   }
 

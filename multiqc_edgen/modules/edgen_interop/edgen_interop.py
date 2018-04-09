@@ -69,9 +69,8 @@ class MultiqcModule(BaseMultiqcModule):
 
         # Start GNUPlot within the new empty dir and to pipe in the commands
         # to make a bunch of files.
-        # We can assume gnuplot is in the path.
+        # We can assume gnuplot is in the path (it should be in the TOOLBOX)
         def munger(ifh):
-            # Heat maps want to be wider to align with line graphs
             width = 800
             height = 450
             cycle = 0
@@ -83,6 +82,10 @@ class MultiqcModule(BaseMultiqcModule):
                 if line.startswith('# Version'):
                     if cycle: yield None
                     cycle += 1
+                # Fix the colour scale so all the plots are comparable
+                # Do we want this?
+                #if line.startswith('set cbrange'):
+                #    line = "set cbrange [50:300]\n"
                 # Fudge the image size.
                 if line.startswith('set terminal'):
                     line = "set terminal pngcairo size {},{} enhanced font 'sans,10'\n".format(width, height)
@@ -228,7 +231,9 @@ class MultiqcModule(BaseMultiqcModule):
                     b64_img = base64.b64encode(f.read()).decode('utf8')
 
                     if file_extn == 'apng':
-                        html = ('<div id="{}" class="apng_slider" apng_data="{}"{}></div>'.format(pid, b64_img,  hidediv))
+                        # FIXME - If more apng options are added I'll need to make slider_label and zero_image dynamic.
+                        html = (('<div id="{}" class="apng_slider" slider_label="Show cycle"' + \
+                                 'zero_image="" apng_data="{}"{}></div>').format(pid, b64_img,  hidediv))
                     else:
                         html = ('<div id="{}"{}><img style="border:none" src="data:image/png;base64,{}" />' +
                                  '</div>').format(pid, hidediv, b64_img)

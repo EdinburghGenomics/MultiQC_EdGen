@@ -590,7 +590,9 @@ window["apng_js"] =
 	                }
 	            }
 
-	            this.context.clearRect(this._prevFrame.left, this._prevFrame.top, this._prevFrame.width, this._prevFrame.height);
+                if (this._prevFrame && this._prevFrame.disposeOp == 1) {
+                    this.context.clearRect(this._prevFrame.left, this._prevFrame.top, this._prevFrame.width, this._prevFrame.height);
+                }
 
 	            var frame = this.currentFrame;
 	            this._prevFrame = frame;
