@@ -94,7 +94,7 @@ function frame_change(n, player_handle){
 
     player_handle[0].renderFrame(n);
 
-    console.log("Frame is now " + player_handle[0].currentFrameNumber);
+    //console.log("Frame is now " + player_handle[0].currentFrameNumber);
 }
 
 $( function(){
