@@ -100,8 +100,8 @@
 #page_browser li.lui_state_false {
   background: repeating-linear-gradient(
                 45deg,
-                #af823f,
-                #af823f 5px,
+                #ffc877,
+                #ffc877 5px,
                 #ce9c52 5px,
                 #ce9c52 10px );
 }
@@ -117,8 +117,8 @@
 #page_browser div#page_browser_lui.lui_state_false {
   background: repeating-linear-gradient(
                 45deg,
-                #af823f,
-                #af823f 5px,
+                #ffc877,
+                #ffc877 5px,
                 #ce9c52 5px,
                 #ce9c52 10px );
 }
@@ -136,8 +136,8 @@
 .lui_state_false h1 {
   background: repeating-linear-gradient(
                 45deg,
-                #af823f,
-                #af823f 5px,
+                #ffc877,
+                #ffc877 5px,
                 #ce9c52 5px,
                 #ce9c52 10px );
 }

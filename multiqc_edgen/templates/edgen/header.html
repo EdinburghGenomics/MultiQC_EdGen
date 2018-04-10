@@ -10,14 +10,12 @@ Also includes some extra style info.
 #}
 <style type="text/css">
   {{ include_file('assets/css/edgen.css', b64=False) }}
+  {{ include_file('assets/css/jquery-ui-inlined.css', b64=False) }}
 </style>
 <script language="javascript">
   {{ include_file('assets/js/lui.js', b64=False) }}
 </script>
 {% if report.edgen_run.get('include_apng') %}
-<style type="text/css">
-  {{ include_file('assets/css/jquery-ui.min.css', b64=False) }}
-</style>
 <script language="javascript">
   {{ include_file('assets/js/packages/apng-js-bundle.js', b64=False) }}
 </script>
