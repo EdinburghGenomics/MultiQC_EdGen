@@ -113,30 +113,30 @@ function lui_show_flags(browser_div, json_data){
             $('.side-nav-wrapper').removeClass(
                             "lui_state_true lui_state_false lui_state_null").addClass(
                             "lui_state_" + infos["Lane QC"]);
+
+            // Add in the hidden dialog ready to prompt the user for new values.
+            if( ! browser_div.find("div.lui_dialog").html() ){
+                // Make the dialog just-in-time (initially invisible)
+                browser_div.append(
+                    '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane + ' usable?">' +
+                     '<div style="clear: both;"><span id="lui_usable_label>Usable?</span> <span style="float: right;">' +
+                     '<input type="radio" name="flag" id="flag_yes"><label for="flag_yes">Yes</label>' +
+                     '<input type="radio" name="flag" id="flag_no"><label for="flag_no">No</label>' +
+                     '</span></div><div>' +
+                     'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
+                     '<div class="dialog_buttons"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
+                     '</div></div></div>');
+            }
+
+            // Insert the current state into the dialog box
+            var lui_dialog = browser_div.find("div.lui_dialog");
+
+            // As per by the LIMS, initial value is tri-state but once set can't be cleared.
+            lui_dialog.find("input#flag_yes").prop("checked", (infos["Lane QC"] === true));
+            lui_dialog.find("input#flag_no").prop("checked", (infos["Lane QC"] === false));
+
+            lui_dialog.find("textarea[name='blurb']").val(infos["Fail Details"]);
         }
-
-        // Add in the hidden dialog ready to prompt the user for new values.
-        if( ! browser_div.find("div.lui_dialog") ){
-            // Make the dialog just-in-time (initially invisible)
-            browser_div.append(
-                '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane + ' usable?">' +
-                 '<div style="clear: both;"><span id="lui_usable_label>Usable?</span> <span style="float: right;">' +
-                 '<input type="radio" name="flag" id="flag_yes"><label for="flag_yes">Yes</label>' +
-                 '<input type="radio" name="flag" id="flag_no"><label for="flag_no">No</label>' +
-                 '</span></div><div>' +
-                 'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
-                 '<div class="dialog_buttons"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
-                 '</div></div></div>');
-        }
-
-        // Insert the current state into the dialog box
-        var lui_dialog = browser_div.find("div.lui_dialog");
-
-        // As limited by the LIMS, initial value is tri-state but once set can't be cleared.
-        lui_dialog.find("input#flag_yes").prop("checked", (infos["Lane QC"] === true));
-        lui_dialog.find("input#flag_no").prop("checked", (infos["Lane QC"] === false));
-
-        lui_dialog.find("textarea[name='blurb']").val(infos["Fail Details"]);
     }
 
 }

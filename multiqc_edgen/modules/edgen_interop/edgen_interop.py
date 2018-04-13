@@ -83,9 +83,9 @@ class MultiqcModule(BaseMultiqcModule):
                     if cycle: yield None
                     cycle += 1
                 # Fix the colour scale so all the plots are comparable
-                # Do we want this?
-                if line.startswith('set cbrange'):
-                    line = "set cbrange [50:300]\n"
+                # Do we want this? No, Tony says please keep the variable range per-cycle.
+                #if line.startswith('set cbrange'):
+                #    line = "set cbrange [50:300]\n"
                 # Fudge the image size.
                 if line.startswith('set terminal'):
                     line = "set terminal pngcairo size {},{} enhanced font 'sans,10'\n".format(width, height)
