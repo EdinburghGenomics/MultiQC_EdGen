@@ -236,6 +236,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
 			old_state['reset'] = false;
 			// The button will be re-enabled by the callback after AJAX.
         	button_clicked.text("Saving to the LIMS...");
+            dialog_div.dialog("close");
 		}
 	} );
 
