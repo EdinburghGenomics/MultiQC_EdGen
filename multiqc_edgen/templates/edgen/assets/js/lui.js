@@ -115,21 +115,24 @@ function lui_show_flags(browser_div, json_data){
                             "lui_state_" + infos["Lane QC"]);
 
             // Add in the hidden dialog ready to prompt the user for new values.
-            if( ! browser_div.find("div.lui_dialog").html() ){
+            // Remember that running the .dialog() function on this will remove it from the parent div so we need to
+            // keep a handle on it.
+            if( ! browser_div.lui_dialog ){
                 // Make the dialog just-in-time (initially invisible)
                 browser_div.append(
-                    '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane + ' usable?">' +
-                     '<div style="clear: both;"><span id="lui_usable_label>Usable?</span> <span style="float: right;">' +
+                    '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane.substr(4) + ' usable?">' +
+                     '<div style="clear: both;"><span id="lui_usable_label">Usable?</span> <span style="float: right;">' +
                      '<input type="radio" name="flag" id="flag_yes"><label for="flag_yes">Yes</label>' +
                      '<input type="radio" name="flag" id="flag_no"><label for="flag_no">No</label>' +
                      '</span></div><div>' +
                      'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
-                     '<div class="dialog_buttons"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
+                     '<div class="dialog_buttons" style="text-align: right"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
                      '</div></div></div>');
+                browser_div.lui_dialog = browser_div.find("div.lui_dialog");
             }
 
             // Insert the current state into the dialog box
-            var lui_dialog = browser_div.find("div.lui_dialog");
+            var lui_dialog = browser_div.lui_dialog;
 
             // As per by the LIMS, initial value is tri-state but once set can't be cleared.
             lui_dialog.find("input#flag_yes").prop("checked", (infos["Lane QC"] === true));
@@ -162,7 +165,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
     /* Now we want to use a more sophisticated dialog box. jquery-ui provides one. The dialog
      * was alredy set up above. */
 
-    var dialog_div = browser_div.find("div#lui_dialog");
+    var dialog_div = browser_div.lui_dialog;
 
     if(dialog_div.hasClass("ui-dialog-content")){
         // The dialog is already set up. Just show it.
@@ -171,10 +174,12 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
     else
     {
         // Set it up
-        dialog_div.dialog( {width: 500, title: $("#dialog_div").attr('title')} );
+        browser_div.lui_dialog = dialog_div.dialog( {width: 500, title: $("#dialog_div").attr('title')} );
+        dialog_div = browser_div.lui_dialog;
         // To get the height auto-sizing we have to use a callback
         // Width sizing 'just works' so leave that to CSS.
         var size_difference = 0;
+        var ta = dialog_div.find('textarea');
         dialog_div.bind("dialogresize", function(event, ui){
             if(! size_difference){
                 size_difference = ui.originalSize.height - ta.height();
