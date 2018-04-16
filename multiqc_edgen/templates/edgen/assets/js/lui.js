@@ -128,7 +128,7 @@ function lui_show_flags(browser_div, json_data){
                      'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
                      '<div class="dialog_buttons" style="text-align: right"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
                      '</div></div></div>');
-                browser_div.lui_dialog = browser_div.find("div.lui_dialog");
+                browser_div.lui_dialog = browser_div.find("div#lui_dialog");
             }
 
             // Insert the current state into the dialog box
@@ -174,7 +174,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
     else
     {
         // Set it up
-        browser_div.lui_dialog = dialog_div.dialog( {width: 500, title: $("#dialog_div").attr('title')} );
+        browser_div.lui_dialog = dialog_div.dialog( {width: 500, title: dialog_div.attr('title')} );
         dialog_div = browser_div.lui_dialog;
         // To get the height auto-sizing we have to use a callback
         // Width sizing 'just works' so leave that to CSS.
@@ -189,8 +189,11 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
 
             if( new_height > 20 ){
                 ta.css({height: new_height});
+                dialog_div.css({height: 'auto', width: 'auto'});
             }
         });
+        // And for some reason I have to do this manually? Something odd with the JS in MultiQC.
+        $("button.ui-dialog-titlebar-close").addClass("ui-button-icon ui-icon ui-icon-closethick");
 	}
 
     // Now bind the buttons...
