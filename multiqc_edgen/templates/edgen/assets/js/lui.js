@@ -194,6 +194,11 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
         });
         // And for some reason I have to do this manually? Something odd with the JS in MultiQC.
         $("button.ui-dialog-titlebar-close").addClass("ui-button-icon ui-icon ui-icon-closethick");
+
+        dialog_div.find("button[name='cancel']").click( function(e){
+                dialog_div.dialog("close");
+        } );
+
 	}
 
     // Now bind the buttons...
@@ -204,10 +209,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
                       blurb:  dialog_div.find("textarea[name='blurb']").val(),
                       reset:  true};
 
-	dialog_div.find("button[name='cancel']").click( function(e){
-			dialog_div.dialog("close");
-	} );
-
+    dialog_div.unbind("dialogclose");
 	dialog_div.bind("dialogclose", function(e, ui){
             if(old_state['reset']){
                 dialog_div.find("input#flag_yes").prop("checked", old_state['check1']);
@@ -218,6 +220,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
             }
 	});
 
+    dialog_div.find("button[name='ok']").off("click");
 	dialog_div.find("button[name='ok']").click( function(e){
 		if( ! ( dialog_div.find("input#flag_yes").prop("checked") ||
                 dialog_div.find("input#flag_no").prop("checked") ) ){
