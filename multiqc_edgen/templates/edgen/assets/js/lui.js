@@ -122,8 +122,8 @@ function lui_show_flags(browser_div, json_data){
                 browser_div.append(
                     '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane.substr(4) + ' usable?">' +
                      '<div style="clear: both;"><span id="lui_usable_label">Usable?</span> <span style="float: right;">' +
-                     '<input type="radio" name="flag" id="flag_yes"><label for="flag_yes">Yes</label>' +
-                     '<input type="radio" name="flag" id="flag_no"><label for="flag_no">No</label>' +
+                     '<input type="radio" name="flag" id="flag_yes" margin="3px"><label for="flag_yes">Yes</label>' +
+                     '<input type="radio" name="flag" id="flag_no" margin="3px"><label for="flag_no">No</label>' +
                      '</span></div><div>' +
                      'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
                      '<div class="dialog_buttons" style="text-align: right"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
@@ -198,24 +198,24 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
 
     // Now bind the buttons...
 	// Do this on each showing so Cancel can properly reset the dialog state.
+	// For consistency, closing the dialog should do the same
 	var old_state = { check1: dialog_div.find("input#flag_yes").prop("checked"),
                       check2: dialog_div.find("input#flag_no").prop("checked"),
-                      blurb:  dialog_div.find("textarea[name='blurb']").val() };
+                      blurb:  dialog_div.find("textarea[name='blurb']").val(),
+                      reset:  true};
 
 	dialog_div.find("button[name='cancel']").click( function(e){
-			dialog_div.find("input#flag_yes").prop("checked", old_state['check1']);
-			dialog_div.find("input#flag_no").prop("checked", old_state['check2']);
-			dialog_div.find("textarea[name='blurb']").val(old_state['val']);
 			dialog_div.dialog("close");
-
-			// Re-enable the button.
-        	button_clicked.attr("disabled", false);
 	} );
 
-	// At present, simply closing the dialog does not reset the state. This is OK, I think.
-	// However we do need to re-enable the button.
 	dialog_div.bind("dialogclose", function(e, ui){
-			button_clicked.attr("disabled", false);
+            if(old_state['reset']){
+                dialog_div.find("input#flag_yes").prop("checked", old_state['check1']);
+                dialog_div.find("input#flag_no").prop("checked", old_state['check2']);
+                dialog_div.find("textarea[name='blurb']").val(old_state['blurb']);
+
+                button_clicked.attr("disabled", false);
+            }
 	});
 
 	dialog_div.find("button[name='ok']").click( function(e){
@@ -233,7 +233,7 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
 							dialog_div.find("input#flag_yes").prop("checked"),
 						 	dialog_div.find("textarea[name='blurb']").val(),
 							ui_update_callback, ui_error_callback );
-			dialog_div.dialog("close");
+			old_state['reset'] = false;
 			// The button will be re-enabled by the callback after AJAX.
         	button_clicked.text("Saving to the LIMS...");
 		}
