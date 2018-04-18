@@ -122,11 +122,12 @@ function lui_show_flags(browser_div, json_data){
                 browser_div.append(
                     '<div id="lui_dialog" style="display: none" title="Is lane ' + lui_lane.substr(4) + ' usable?">' +
                      '<div style="clear: both;"><span id="lui_usable_label">Usable?</span> <span style="float: right;">' +
-                     '<input type="radio" name="flag" id="flag_yes" margin="3px"><label for="flag_yes">Yes</label>' +
-                     '<input type="radio" name="flag" id="flag_no" margin="3px"><label for="flag_no">No</label>' +
+                     '<input type="radio" name="flag" id="flag_yes" style="margin: 4px"><label for="flag_yes">Yes</label>' +
+                     '<input type="radio" name="flag" id="flag_no" style="margin: 4px"><label for="flag_no">No</label>' +
                      '</span></div><div>' +
                      'Remarks: <div><textarea name="blurb" style="width: 100%" cols="60" rows="4"></textarea></div>' +
-                     '<div class="dialog_buttons" style="text-align: right"><button name="cancel">Cancel</button><button name="ok">OK</button>' +
+                     '<div class="dialog_buttons" style="text-align: right">' +
+                     '<button name="cancel" style="min-width: 80px">Cancel</button><button name="ok" style="min-width: 80px">OK</button>' +
                      '</div></div></div>');
                 browser_div.lui_dialog = browser_div.find("div#lui_dialog");
             }
@@ -174,7 +175,10 @@ function lui_prompt_flag(browser_div, ui_update_callback, ui_error_callback){
     else
     {
         // Set it up
-        browser_div.lui_dialog = dialog_div.dialog( {width: 500, title: dialog_div.attr('title')} );
+        browser_div.lui_dialog = dialog_div.dialog( { width: 500,
+                                                      title: dialog_div.attr('title'),
+                                                      appendTo: browser_div,
+                                                    } );
         dialog_div = browser_div.lui_dialog;
         // To get the height auto-sizing we have to use a callback
         // Width sizing 'just works' so leave that to CSS.
