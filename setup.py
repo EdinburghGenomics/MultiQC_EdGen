@@ -17,7 +17,7 @@ $ env PYTHONPATH="`python3 -m site --user-site`" python3 ./setup.py --verbose de
 
 from setuptools import setup, find_packages
 
-version = '1.1'
+version = '1.2'
 
 setup(
     name = 'multiqc_edgen',
@@ -35,6 +35,7 @@ setup(
     package_data = { '': ['utils/*.yaml', '*.html',
                           'templates/*/assets/img/*.*',
                           'templates/*/assets/js/*.*',
+                          'templates/*/assets/js/packages/*.*',
                           'templates/*/assets/css/*.*' ] },
     install_requires = [
         'pyyaml',

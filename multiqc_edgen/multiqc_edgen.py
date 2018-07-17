@@ -20,7 +20,7 @@ from multiqc.utils import report, config
 
 log = logging.getLogger('multiqc')
 
-#Container for the meta-data. Add keys that match things in the HTML template(s).
+#Container for the meta-data etc. Add keys that match things in the HTML template(s).
 report.edgen_run = dict()
 
 class edgen_before_modules():
@@ -95,9 +95,9 @@ class edgen_before_report():
 
     def set_lane(self):
         """Work out what lane we're reporting on, if any.
-           Lane 0 is the overview report.
+           Lane 0 is the overview report and the default if no lane is set.
         """
-        lane_str = config.kwargs.get('lane') or ''
+        lane_str = config.kwargs.get('lane') or '0'
 
         if lane_str.startswith('lane'):
             self.lane = int(lane_str[4:])

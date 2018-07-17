@@ -95,10 +95,15 @@
 
 /* Coloured tabs when the lane flag status gets set */
 #page_browser li.lui_state_true {
-  background: #a2f9a5;
+  background: #96ffd6;
 }
 #page_browser li.lui_state_false {
-  background: #f7c780;
+  background: repeating-linear-gradient(
+                45deg,
+                #ffc877,
+                #ffc877 5px,
+                #eab669 5px,
+                #eab669 10px );
 }
 
 #page_browser div#page_browser_lui {
@@ -107,10 +112,15 @@
     display: block;
 }
 #page_browser div#page_browser_lui.lui_state_true {
-    background: #a2f9a5;
+  background: #96ffd6;
 }
 #page_browser div#page_browser_lui.lui_state_false {
-    background: #f7c780;
+  background: repeating-linear-gradient(
+                45deg,
+                #ffc877,
+                #ffc877 5px,
+                #eab669 5px,
+                #eab669 10px );
 }
 
 /* Make disabled button look disabled */
@@ -120,11 +130,16 @@
 }
 
 .lui_state_true h1 {
-    background: #a2f9a5;
+  background: #96ffd6;
 }
 
 .lui_state_false h1 {
-    background: #f7c780;
+  background: repeating-linear-gradient(
+                45deg,
+                #ffc877,
+                #ffc877 5px,
+                #eab669 5px,
+                #eab669 10px );
 }
 
 /* Slightly smaller title in the nav bar please */

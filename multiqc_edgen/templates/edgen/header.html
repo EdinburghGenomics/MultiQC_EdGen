@@ -10,10 +10,19 @@ Also includes some extra style info.
 #}
 <style type="text/css">
   {{ include_file('assets/css/edgen.css', b64=False) }}
+  {{ include_file('assets/css/jquery-ui-inlined.css', b64=False) }}
 </style>
 <script language="javascript">
   {{ include_file('assets/js/lui.js', b64=False) }}
 </script>
+{% if report.edgen_run.get('include_apng') %}
+<script language="javascript">
+  {{ include_file('assets/js/packages/apng-js-bundle.js', b64=False) }}
+</script>
+<script language="javascript">
+  {{ include_file('assets/js/apng-make-sliders.js', b64=False) }}
+</script>
+{% endif %}
 
 <h1 id="page_title">
   <a class="pull-right" href="http://genomics.ed.ac.uk" target="_blank">
@@ -56,11 +65,13 @@ Also includes some extra style info.
         cdir.pop();
         var cnum = cdir.pop(); // eg. 0001
         var nextnum = ("0000" + (parseInt(cnum) + 1)).slice(-4);
-        cdir.push(nextnum);
 
-        $.get(cdir.join('/'), function(data) {
-            $("#version_alert").html('<em><a href="../.." style="color:orchid">newer version available!</a></em>');
-        });
+        if(nextnum != "0NaN") {
+            cdir.push(nextnum);
+            $.get(cdir.join('/'), function(data) {
+                $("#version_alert").html('<em><a href="../.." style="color:orchid">newer version available!</a></em>');
+            });
+        }
     });
 
 </script>
