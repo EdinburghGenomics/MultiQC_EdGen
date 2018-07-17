@@ -22,17 +22,16 @@ def pct(n, d, nan=0.0, mul=100.0):
     """ Calculate a percentage (or ratio) while avoiding division by zero errors.
         Strictly speaking we should have nan=float('nan') but for practical
         purposes we'll normally report 0.0.
-                        """
+    """
     try:
         return ( float(n) * mul ) / float(d)
     except (ZeroDivisionError, TypeError):
         return nan
 
 class MultiqcModule(BaseMultiqcModule):
-    """
-    Cutadapt module class, parses stdout logs.
-    This is a custom version for the EG Run reports. Support for cutadapt <1.7
-    has been removed.
+    """ Cutadapt module class, parses stdout logs.
+        This is a custom version for the EG Run reports. Support for cutadapt <1.7
+        has been removed.
     """
 
     #Anything shorter than this after trimming is considered an adapter dimer.

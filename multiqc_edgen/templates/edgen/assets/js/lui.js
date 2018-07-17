@@ -34,7 +34,12 @@ function lui_setup(){
         //var lui_endpoint = 'http://' + window.location.host + ':8002/v1/run/'
 
         // If the user is viewing the report from ahost other than web1 they should see an
-        // "unable to load" message as the CORS headers will not permit a log-in prompt.
+        // "unable to load" message as the CORS headers will not permit a log-in prompt. However
+        // this is apparently not working properly so do an extra check.
+        if(window.location.protocol + '//' + window.location.host.substr(0,4) != 'http://web1'){
+            return;
+        }
+
         lui_endpoint = 'http://web1.genepool.private:8002/v1/run/';
 
         $.ajax({
