@@ -142,6 +142,11 @@
                 #eab669 10px );
 }
 
+/* Random italics */
+.mqc-section h3 {
+  font-style: italic;
+}
+
 /* Slightly smaller title in the nav bar please */
 .side-nav .side-nav-title {
     color: #333;

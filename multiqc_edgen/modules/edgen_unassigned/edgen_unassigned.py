@@ -8,6 +8,7 @@ import logging
 import re, os
 
 import base64
+import json
 from html import escape as html_escape
 # This needs Python >=3.5!
 from subprocess import run
@@ -50,11 +51,28 @@ class MultiqcModule(BaseMultiqcModule):
             html += '<a href="{}">View tables of unassigned barcodes</a><br />'.format(rep_relpath)
         #html += '</div>'
 
-        # Abort if none found
+
         log.info("Found {} reports".format(len(self.reports)))
-        if not self.reports:
-            return
+        if self.reports:
+            self.add_section(name='Legacy Report', plot=html)
 
+        # We're now grabbing the barcodes out of Stats.json too. This is hacky, but what isn't?
+        ub_sorted = []
+        if os.path.exists("Stats.json"):
+            with open("Stats.json") as sfh:
+                ub = json.load(sfh).get("UnknownBarcodes", [])
 
-        self.add_section(name='', plot=html)
+            if len(ub) == 1:
+                # There is one lane. Assume it's the right lane.
+                ub_codes = ub[0]["Barcodes"]
+
+                # Now we have a dict. In the original files the list is sorted by count but this will
+                # be lost, so re-sort.
+                ub_sorted = sorted(ub_codes.items(), key=lambda i: int(i[1]), reverse=True)
+
+        if ub_sorted:
+
+            html = '<textarea rows="12" columns="42">' + '\n'.join('\t'.join(i) for i in ub_sorted) + '</textarea>'
+
+            self.add_section(name='UnknownBarcodes from Stats.json', plot=html)
 

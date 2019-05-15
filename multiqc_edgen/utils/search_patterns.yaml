@@ -5,3 +5,5 @@ edgen_cutadapt:
     shared: true
 edgen_unassigned:
     fn: '*.unassigned'
+edgen_fastqc_original:
+    fn: '*_fastqc.html'
