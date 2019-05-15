@@ -47,6 +47,7 @@ setup(
             'edgen_interop  = multiqc_edgen.modules.edgen_interop:MultiqcModule',
             'edgen_cutadapt = multiqc_edgen.modules.edgen_cutadapt:MultiqcModule',
             'edgen_unassigned = multiqc_edgen.modules.edgen_unassigned:MultiqcModule',
+            'edgen_fastqc_original = multiqc_edgen.modules.edgen_fastqc_original:MultiqcModule',
         ],
         # Template that has our branding and space for the meta-data to appear.
         'multiqc.templates.v1': [

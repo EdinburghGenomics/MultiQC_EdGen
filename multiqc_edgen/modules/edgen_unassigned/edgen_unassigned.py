@@ -57,9 +57,10 @@ class MultiqcModule(BaseMultiqcModule):
             self.add_section(name='Legacy Report', plot=html)
 
         # We're now grabbing the barcodes out of Stats.json too. This is hacky, but what isn't?
-        ub_sorted = []
-        if os.path.exists("Stats.json"):
-            with open("Stats.json") as sfh:
+        stats_file = config.analysis_dir[0] + "/Stats.json" if config.analysis_dir else "Stats.json"
+
+        try:
+            with open(stats_file) as sfh:
                 ub = json.load(sfh).get("UnknownBarcodes", [])
 
             if len(ub) == 1:
@@ -69,10 +70,12 @@ class MultiqcModule(BaseMultiqcModule):
                 # Now we have a dict. In the original files the list is sorted by count but this will
                 # be lost, so re-sort.
                 ub_sorted = sorted(ub_codes.items(), key=lambda i: int(i[1]), reverse=True)
+        except FileNotFoundError:
+            ub_sorted = []
 
         if ub_sorted:
 
-            html = '<textarea rows="12" columns="42">' + '\n'.join('\t'.join(i) for i in ub_sorted) + '</textarea>'
+            html = '<textarea rows="8" columns="52">' + '\n'.join('{}\t{}'.format(*i) for i in ub_sorted) + '</textarea>'
 
-            self.add_section(name='UnknownBarcodes from Stats.json', plot=html)
+            self.add_section(name='UnknownBarcodes list from Stats.json', plot=html)
 
