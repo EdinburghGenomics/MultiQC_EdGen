@@ -160,3 +160,8 @@
     font-size: 12px;
     padding: 4px 0;
 }
+
+/* Links with alternating colours within the parent div */
+a.alt_col_link:nth-child(even) {
+    color: #8263bb;
+}

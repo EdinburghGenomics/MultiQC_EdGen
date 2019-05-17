@@ -57,7 +57,7 @@ class MultiqcModule(BaseMultiqcModule):
 
             #Let's use a popover, since bootstrap is already loaded in the document.
             #https://www.w3schools.com/bootstrap/bootstrap_popover.asp
-            links[s_name] = "<a href='{l}' title='{t} FastQC Report'>{t}</a>".format(
+            links[s_name] = "<a href='{l}' title='{t} FastQC Report' class='alt_col_link'>{t}</a>".format(
                                     l=url_escape(file_relpath), t=html_escape(s_name) )
 
         #Output in sorted order.
