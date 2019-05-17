@@ -75,7 +75,8 @@ class MultiqcModule(BaseMultiqcModule):
 
         if ub_sorted:
 
-            html = '<textarea rows="8" columns="52">' + '\n'.join('{}\t{}'.format(*i) for i in ub_sorted) + '</textarea>'
+            html = '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">' \
+                   + '\n'.join('{}\t{}'.format(*i) for i in ub_sorted) + '</textarea>'
 
-            self.add_section(name='UnknownBarcodes list from Stats.json', plot=html)
+            self.add_section(name='UnknownBarcodes list in Stats.json', plot=html)
 
