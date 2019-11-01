@@ -122,7 +122,8 @@ class edgen_before_report():
         #    return '' # No navigation necessary
 
         # If this is the overview and we're not demultiplexed, suppress the other links
-        # FIXME - this is all a bit hacky
+        # FIXME - this is all a bit hacky - we should really have an explicit list of lanes
+        # for which there are reports to see.
         page_browser_class = 'page_browser_full'
         if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
             page_browser_class = 'page_browser_overview'

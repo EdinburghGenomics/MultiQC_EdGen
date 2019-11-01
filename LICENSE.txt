@@ -1,0 +1,12 @@
+Copyright (c) 2016-2019 The University of Edinburgh
+          and others
+Authors: Timothy Booth <tim.booth@ed.ac.uk>,
+         MultiQC authors - see https://github.com/ewels/MultiQC
+
+This code is Free Software  derived from examples provided as part of the
+MultiQC distribution, which was obtained under the GPL-3 license.
+
+https://www.gnu.org/licenses/gpl-3.0.en.html
+
+In accordance with the GPL conditions this code may be used and redistributed
+under the same licence terms as MultiQC itself.
