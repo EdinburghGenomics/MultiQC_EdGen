@@ -6,6 +6,7 @@
 import logging
 import sys, os, re
 import shutil
+from collections import namedtuple
 from distutils.version import StrictVersion
 
 from multiqc import config
@@ -30,10 +31,20 @@ class MultiqcModule(BaseMultiqcModule):
             href='http://www.bioinformatics.babraham.ac.uk/projects/fastqc/',
             info="are the original HTML files produced by FastQC.")
 
-        # Find any HTML reports. We have to do this by finding the zips
-        self.html_reports = dict()
+        # Find any HTML reports. We have to do this by finding the zips. Note there are maybe two FASTQC reports
+        # per fragment, so each report looks like:
+        FQCReport = namedtuple('FQCReport', "sample label read file".split())
+        self.html_reports = []
+
+        FIXME FIXME
+
         for zip_report in self.find_log_files('fastqc/zip', filehandles=True):
-            self.html_reports[zip_report['s_name']] = re.sub('\.zip$', '.html', zip_report['f'].name)
+
+            rep_name = ( "{}_{}".format(zip_report['s_name'], zip_report.get('read_pairs'))
+                          if zip_report.get('read_pairs')
+                          else zip_report['s_name'] )
+
+            self.html_reports[rep_name] = re.sub('\.zip$', '.html', zip_report['f'].name)
             zip_report['f'].close()
 
         if not self.html_reports:
@@ -46,23 +57,27 @@ class MultiqcModule(BaseMultiqcModule):
                           content = self.tack_on_reports() )
 
     def tack_on_reports(self):
-        """ Copy the file into the data_dir and bung in a link to it here.
+        """ Copy every file into the data_dir and bung in a link to it here.
         """
         links = dict()
-        for s_name, f in self.html_reports.items():
-            fname = os.path.basename(f)
 
-            shutil.copy(f, os.path.join( config.data_dir, fname ))
-            file_relpath = os.path.join( config.data_dir_name, fname )
+        for s_name, flist in self.html_reports.items():
+            links[s_name] = "<span class='alt_col_link'>"
 
-            #Let's use a popover, since bootstrap is already loaded in the document.
-            #https://www.w3schools.com/bootstrap/bootstrap_popover.asp
-            links[s_name] = "<a href='{l}' title='{t} FastQC Report' class='alt_col_link'>{t}</a>".format(
-                                    l=url_escape(file_relpath), t=html_escape(s_name) )
+            for f in flist:
+                fname = os.path.basename(f)
+
+                shutil.copy(f, os.path.join( config.data_dir, fname ))
+                file_relpath = os.path.join( config.data_dir_name, fname )
+
+                links[s_name] += "<a href='{l}' title='{t} FastQC Report'>{t}</a>".format(
+                                           l=url_escape(file_relpath), t=html_escape(s_name) )
+
+            links[s_name] += "</span>"
 
         #Output in sorted order.
         if not links:
             links['error'] = "No FastQC HTML plots were found."
 
-        return "<div>" +  " ".join([links[k] for k in sorted(links)]) + "</div>"
+        return "<div>" +  " ".join(links[k] for k in sorted(links)) + "</div>"
 

@@ -165,3 +165,8 @@
 a.alt_col_link:nth-child(even) {
     color: #8263bb;
 }
+
+/* Link groups with alternating colours within the parent div */
+span.alt_col_link:nth-child(even) a {
+    color: #8263bb;
+}
