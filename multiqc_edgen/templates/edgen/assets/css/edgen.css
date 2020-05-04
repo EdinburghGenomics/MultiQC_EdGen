@@ -173,3 +173,22 @@ span.alt_col_link {
 span.alt_col_link:nth-child(even) a {
     color: #8263bb;
 }
+
+/* Override bootstrap colours to make it easier for Matt to see */
+.progress-bar-success {
+  //background-color: #5cb85c;
+  background-color: #5cb69e;
+}
+
+.progress-bar-info {
+  background-color: #5bc0de;
+}
+
+.progress-bar-warning {
+  background-color: #f0ad4e;
+}
+
+.progress-bar-danger {
+  //background-color: #d9534f;
+  background-color: #d95e00;
+}
