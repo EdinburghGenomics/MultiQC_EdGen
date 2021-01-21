@@ -17,7 +17,7 @@ $ env PYTHONPATH="`python3 -m site --user-site`" python3 ./setup.py --verbose de
 
 from setuptools import setup, find_packages
 
-version = '1.2'
+version = '1.2.1'
 
 setup(
     name = 'multiqc_edgen',
@@ -39,7 +39,7 @@ setup(
                           'templates/*/assets/css/*.*' ] },
     install_requires = [
         'pyyaml',
-        'requests'
+        'yamlloader',
     ],
     entry_points = {
         # Extra QC modules that digest report files.

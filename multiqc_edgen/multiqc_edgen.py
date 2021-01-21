@@ -7,7 +7,7 @@ from collections import OrderedDict
 import logging
 import os, sys, re
 from glob import glob
-import yaml
+import yaml, yamlloader
 import base64
 from cgi import escape
 from datetime import datetime
@@ -61,7 +61,7 @@ class edgen_before_report():
         # Actually that's not true - we can add a CLI option to enable/disable.
 
         #I think the idea is to call absolutely everything from the constructor!
-        self.yaml_data = dict()
+        self.yaml_data = OrderedDict()
         self.yaml_flat = OrderedDict()
 
         self.pipeline_status = config.kwargs.get('pipeline_status')
@@ -162,9 +162,9 @@ class edgen_before_report():
 
         # Key names may be in the form x//y in which case order on x and use y as the label,
         # overriding any previous ordering and structuring.
-        keys = [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x <  'n0' ] + \
+        keys = [ (y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ] if x <  'n0' ] + \
                [ (y, k) for y, k in keys if '//' not in y ] + \
-               [ (y, k) for ((x, y), k) in sorted([ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ]) if x >= 'n0' ]
+               [ (y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ] if x >= 'n0' ]
 
         keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
 
@@ -235,10 +235,10 @@ class edgen_before_report():
                 log.info("Loading metadata from {}".format(y))
                 # The point of this is to allow new sections to replace old ones,
                 # including removing keys.
-                self.yaml_data.update( yaml.safe_load(yfh) )
+                self.yaml_data.update( yaml.load(yfh, Loader=yamlloader.ordereddict.CSafeLoader) )
 
-        for sk, sv in sorted(self.yaml_data.items()):
-            self.yaml_flat.update(sorted(sv.items()))
+        for sk, sv in self.yaml_data.items():
+            self.yaml_flat.update(sv.items())
 
 
 class edgen_finish():
