@@ -8,14 +8,14 @@ import logging
 import os, sys, re
 from glob import glob
 import yaml, yamlloader
-import base64
+from base64 import b64encode
 from cgi import escape
 from datetime import datetime
 
 from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
 
-import multiqc
+import multiqc # import before getting logger
 from multiqc.utils import report, config
 
 log = logging.getLogger('multiqc')
@@ -178,7 +178,7 @@ class edgen_before_report():
         return '\n'.join(res) + '\n'
 
     def linkify(self, val):
-        """Turns an item from the YAML into a link.
+        """Turns an item [label, link] from the YAML into a link.
            Hyperlinks are simple.
            File links are trickier.
         """
@@ -186,11 +186,19 @@ class edgen_before_report():
             return escape(str(val))
 
         if val[1] is None:
+            # So there is no link
             return escape(str(val[0]))
+
+        # See if the label has [brackets]
+        mo = re.match(r'(.*)\[(.*)\](.*)', val[0])
+        if mo:
+            label_bits = [ escape(p) for p in mo.groups() ][1:]
+        else:
+            label_bits = [ '', escape(val[0]), '' ]
 
         # Normal hyperlink is simple
         if re.match('https?://', val[1]):
-            return "<a href='{}'>{}</a>".format(val[1], escape(val[0]))
+            return "{lb[0]}<a href='{link}'>{lb[1]}</a>{lb[2]}".format(lb=label_bits, link=val[1])
 
         # File upload is trickier, partly due to:
         #  https://groups.google.com/a/chromium.org/forum/#!topic/blink-dev/GbVcuwg_QjM%5B1-25%5D
@@ -201,10 +209,11 @@ class edgen_before_report():
             fake_extn = '.csv' if '.csv.' in val[0] else ''
             # Embed the file
             with open(val[1], "rb") as f:
-                return "<a download='{}' target='_blank' href='data:text/plain;charset=utf-8;base64,{}'>{}</a>".format(
-                            escape(val[0]) + fake_extn,
-                            base64.b64encode(f.read()).decode('utf-8'),
-                            escape(val[0]) )
+                fdata = "data:text/plain;charset=utf-8;base64," + b64encode(f.read()).decode('utf-8')
+                return "{lb[0]}<a download='{lb[1]}{extn}' target='_blank' href='{fdata}'>{lb[1]}</a>{lb[2]}".format(
+                            lb = label_bits,
+                            extn = fake_extn,
+                            fdata = fdata )
 
     def textify(self, val):
         """Like linkify, but just gets the text, ensuring it's quoted properly
@@ -218,7 +227,7 @@ class edgen_before_report():
         """Finds all files matching run_info.*.yml and loads them in order.
            Get the data into self.yaml_data.
         """
-        #FIXME - Am I just looking in the CWD?? Or do I have to explicitly say config.analysis_dir?
+        # TODO - am I just looking in the CWD?? Or do I really have to explicitly say config.analysis_dir?
         def _getnum(filename):
             #Extract the number from the penultimate part of the filename.
             try:
