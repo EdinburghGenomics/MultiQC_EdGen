@@ -192,7 +192,7 @@ class edgen_before_report():
         # See if the label has [brackets]
         mo = re.match(r'(.*)\[(.*)\](.*)', val[0])
         if mo:
-            label_bits = [ escape(p) for p in mo.groups() ][1:]
+            label_bits = [ escape(p) for p in mo.groups() ]
         else:
             label_bits = [ '', escape(val[0]), '' ]
 
