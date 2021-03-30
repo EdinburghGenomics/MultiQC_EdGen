@@ -56,27 +56,18 @@ class MultiqcModule(BaseMultiqcModule):
         if self.reports:
             self.add_section(name='Legacy Report', plot=html)
 
-        # We're now grabbing the barcodes out of Stats.json too. This is hacky, but what isn't?
-        stats_file = config.analysis_dir[0] + "/Stats.json" if config.analysis_dir else "Stats.json"
+        # Add the unassigned table which is just a basic text file emitted by the pipeline.
+        utt_file = (config.analysis_dir[0] if config.analysis_dir else ".") + "/unassigned_to_table.txt"
 
         try:
             with open(stats_file) as sfh:
-                ub = json.load(sfh).get("UnknownBarcodes", [])
+                ub = sfh.read()
 
-            if len(ub) == 1:
-                # There is one lane. Assume it's the right lane.
-                ub_codes = ub[0]["Barcodes"]
+            if ub.strip():
+                html = '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">' \
+                       + ub + '</textarea>'
 
-                # Now we have a dict. In the original files the list is sorted by count but this will
-                # be lost, so re-sort.
-                ub_sorted = sorted(ub_codes.items(), key=lambda i: int(i[1]), reverse=True)
-        except FileNotFoundError:
-            ub_sorted = []
+                self.add_section(name='UnknownBarcodes list in Stats.json', plot=html)
 
-        if ub_sorted:
-
-            html = '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">' \
-                   + '\n'.join('{}\t{}'.format(*i) for i in ub_sorted) + '</textarea>'
-
-            self.add_section(name='UnknownBarcodes list in Stats.json', plot=html)
-
+        except Exception:
+            log.warning("Could not read {}".format(utt_file))
