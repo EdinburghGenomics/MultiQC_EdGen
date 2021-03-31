@@ -5,13 +5,10 @@ from __future__ import print_function, division, absolute_import
     the report and link to it.
 """
 import logging
-import re, os
+import os
 
-import base64
-import json
-from html import escape as html_escape
-# This needs Python >=3.5!
-from subprocess import run
+import shutil
+from glob import glob
 
 from pprint import pprint
 from multiqc import config
@@ -28,46 +25,41 @@ class MultiqcModule(BaseMultiqcModule):
     def __init__(self):
 
         super(MultiqcModule, self).__init__(name='Unassigned Barcodes', anchor='unassigned',
-                href='http://gitlab.genepool.private/production-team/illuminatus',
+                href='https://github.com/EdinburghGenomics/illuminatus',
                 info='Tries to identify and tabulate unassigned barcodes.')
 
         self.hidediv = ''
 
-        # There should just be one report, but I'll allow for there to be many
-        self.reports = []
-
         html = ''
         #html += '<div id="unassigned"{}>'.format(self.hidediv)
 
-        # Move all the files into the report and link them
-        for n, f in enumerate(self.find_log_files('edgen_unassigned', filehandles=True)):
-            self.reports.append(f['fn'])
+        # For the old-school reports, move all the files into the report and link them
+        analysis_dir = config.analysis_dir[0] if config.analysis_dir else "."
+        legacy_reports = sorted(glob( analysis_dir + '/*.unassigned' ) ) # May be 0?
+        log.info("Found {} legacy reports".format(len(legacy_reports)))
+        for n, f in enumerate(legacy_reports):
+            log.info("Found legacy report {}".format(f))
             rep_savpath = os.path.join(config.data_dir, 'unassigned{}.html'.format(n))
             rep_relpath = os.path.join(config.data_dir_name, 'unassigned{}.html'.format(n))
 
             # Copy the file
-            with open(rep_savpath, 'w') as ofh:
-                ofh.write(f['f'].read())
+            shutil.copy(f, rep_savpath)
             html += '<a href="{}">View tables of unassigned barcodes</a><br />'.format(rep_relpath)
         #html += '</div>'
 
-
-        log.info("Found {} reports".format(len(self.reports)))
-        if self.reports:
+        if legacy_reports:
             self.add_section(name='Legacy Report', plot=html)
 
-        # Add the unassigned table which is just a basic text file emitted by the pipeline.
-        utt_file = (config.analysis_dir[0] if config.analysis_dir else ".") + "/unassigned_to_table.txt"
+        # Now the unassigned_table.txt which is just a basic text file emitted by the pipeline.
+        # We expect just one.
+        html = ''
+        for n, f in enumerate(self.find_log_files('edgen_unassigned', filehandles=True)):
+            ub = f['f'].read()
 
-        try:
-            with open(stats_file) as sfh:
-                ub = sfh.read()
+            html += '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">'
+            html += ub.strip() or '---'
+            html += '</textarea>'
 
-            if ub.strip():
-                html = '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">' \
-                       + ub + '</textarea>'
+        # Assume there was at least one report, or we'd not have been called at all.
+        self.add_section(name='UnknownBarcodes list in Stats.json', plot=html)
 
-                self.add_section(name='UnknownBarcodes list in Stats.json', plot=html)
-
-        except Exception:
-            log.warning("Could not read {}".format(utt_file))

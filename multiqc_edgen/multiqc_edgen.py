@@ -32,7 +32,7 @@ class edgen_before_modules():
 
     def blacklist_modules(self):
 
-        blacklist = ['cutadapt', 'vcftools', 'rsem', 'megaqc' ]
+        blacklist = ['cutadapt', 'vcftools', 'rsem']
 
         for m in blacklist:
             if m in config.run_modules:

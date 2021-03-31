@@ -4,7 +4,7 @@ edgen_cutadapt:
     contents: 'This is cutadapt'
     shared: true
 edgen_unassigned:
-    fn: '*.unassigned'
+    fn: '*_unassigned_table.txt'
 # This fails as all html files are ignored!
 edgen_fastqc_original:
     fn: '*_fastqc.html'
