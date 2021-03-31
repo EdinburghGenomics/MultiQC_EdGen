@@ -56,7 +56,7 @@ class MultiqcModule(BaseMultiqcModule):
         for n, f in enumerate(self.find_log_files('edgen_unassigned', filehandles=True)):
             ub = f['f'].read()
 
-            html += '<textarea rows="8" cols="52" readonly="true" style="font-family: monospace,monospace;">'
+            html += '<textarea rows="8" cols="100" readonly="true" style="font-family: monospace,monospace;">'
             html += ub.strip() or '---'
             html += '</textarea>'
 
