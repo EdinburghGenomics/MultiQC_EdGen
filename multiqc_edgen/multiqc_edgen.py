@@ -148,24 +148,30 @@ class edgen_before_report():
         return '\n'.join(res)
 
 
-    def yaml_to_html(self, keys=None, skip=()):
+    def yaml_to_html(self, orig_keys=None, skip=()):
         """Transform the metadata into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
 
-           If keys is supplied it must be a list of (printable, yaml_key) pairs.
+           If orig_keys is supplied it must be a list of (printable_heading, yaml_key) pairs.
 
            TODO - I think we're going to need to break this out into multiple tables or summat.
                   For now I'm just using yaml_flat, which has already been sorted for me.
         """
-        if keys is None:
-            keys = [ (n, n) for n in self.yaml_flat.keys() ]
+        if orig_keys is None:
+            # Just use the YAML keys as printable labels
+            orig_keys = [ (n, n) for n in self.yaml_flat.keys() ]
 
         # Key names may be in the form x//y in which case order on x and use y as the label,
-        # overriding any previous ordering and structuring.
-        keys = [ (y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ] if x <  'n0' ] + \
-               [ (y, k) for y, k in keys if '//' not in y ] + \
-               [ (y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for xy, k in keys if '//' in xy ] if x >= 'n0' ]
+        # overriding any previous ordering and structuring. Convert the pairs into triplets and see which are going
+        # to the front of the list and which to the back.
+        early_keys = [ (x, y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ] if x < 'n0' ]
+        late_keys =  [ (x, y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ] if x >= 'n0' ]
 
+        keys = [ (y, k) for (x, y, k) in sorted(early_keys) ] + \
+               [ (y, k) for y, k in orig_keys if '//' not in y ] + \
+               [ (y, k) for (x, y, k) in sorted(late_keys) ]
+
+        # Filter out anything to be hidden/skipped
         keys = [ k for k in keys if k[0] not in skip and k[1] not in skip ]
 
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
