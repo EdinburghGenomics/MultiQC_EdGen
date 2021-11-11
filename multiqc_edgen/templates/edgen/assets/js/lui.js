@@ -29,18 +29,20 @@ function lui_setup(){
         lui_lane = browser_div.find("li.active").attr('id').substring(8);
         console.log("Looking at run " + lui_runid  + " lane " + lui_lane);
 
-        // Load the infos for all the lanes. Do I want to determine the endpoint like
-        // this or do I want to hard-code it to web1?
-        //var lui_endpoint = 'http://' + window.location.host + ':8002/v1/run/'
+        // Load the infos for all the lanes.
+        lui_endpoint = window.location.origin + '/lims_run_info/v1/run/';
 
-        // If the user is viewing the report from ahost other than web1 they should see an
-        // "unable to load" message as the CORS headers will not permit a log-in prompt. However
-        // this is apparently not working properly so do an extra check.
-        if(window.location.protocol + '//' + window.location.host.substr(0,4) != 'http://web1'){
-            return;
+        if(window.location.protocol + '//' + window.location.host.substr(0,4) == 'http://web1'){
+            // For now, support web1 as a special-case legacy thingy:
+            lui_endpoint = 'http://web1.genepool.private:8002/v1/run/';
         }
-
-        lui_endpoint = 'http://web1.genepool.private:8002/v1/run/';
+        else{
+            // If the user is viewing the report offline then there's no point in the JavaScript
+            // trying to connect to the WSGI endpoint at all. If the file is put on another server and there
+            // is no working endpoint then I guess there will be some sort of error (at the time of writing,
+            // the target server is egcloud.bio.ed.ac.uk).
+            if (window.location.protocol != 'https:') return;
+        }
 
         $.ajax({
             url: lui_endpoint + lui_runid + '/flags',
