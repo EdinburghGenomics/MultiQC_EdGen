@@ -27,22 +27,19 @@ function lui_setup(){
         var browser_div = $(this);
         lui_runid = browser_div.attr("runid");
         lui_lane = browser_div.find("li.active").attr('id').substring(8);
+
+        // If the div is hidden then we'll bail out
+        if (browser_div.is(':hidden')) {
+            console.log("Skipping LUI as div is hidden");
+            return;
+        }
         console.log("Looking at run " + lui_runid  + " lane " + lui_lane);
+
+        // If we're not on the web server this isn't going to work
+        if (window.location.protocol != 'https:') return;
 
         // Load the infos for all the lanes.
         lui_endpoint = window.location.origin + '/lims_run_info/v1/run/';
-
-        if(window.location.protocol + '//' + window.location.host.substr(0,4) == 'http://web1'){
-            // For now, support web1 as a special-case legacy thingy:
-            lui_endpoint = 'http://web1.genepool.private:8002/v1/run/';
-        }
-        else{
-            // If the user is viewing the report offline then there's no point in the JavaScript
-            // trying to connect to the WSGI endpoint at all. If the file is put on another server and there
-            // is no working endpoint then I guess there will be some sort of error (at the time of writing,
-            // the target server is egcloud.bio.ed.ac.uk).
-            if (window.location.protocol != 'https:') return;
-        }
 
         $.ajax({
             url: lui_endpoint + lui_runid + '/flags',

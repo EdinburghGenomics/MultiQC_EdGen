@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from __future__ import print_function, division, absolute_import
 """ MultiQC hook functions - we tie into the MultiQC
-core here to add in extra functionality and logic for EdGen run reports. """
+    core here to add in extra functionality and logic for EdGen run reports.
+"""
 
 from collections import OrderedDict
 import logging
@@ -15,7 +15,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
 
-import multiqc # import before getting logger
+import multiqc # We do need this! Import before getting logger.
 from multiqc.utils import report, config
 
 log = logging.getLogger('multiqc')
@@ -75,7 +75,10 @@ class edgen_before_report():
         self.load_all_yaml()
 
         # Add HTML to report.edgen_run so the template can pick it up
-        report.edgen_run['metadata1'] = self.yaml_to_html(skip='LaneCount')
+        report.edgen_run['metadata1'] = self.yaml_to_html( skip = {'LaneCount'},
+                                                           hide = {'Sample Sheet',
+                                                                   'Pipeline Script',
+                                                                   'Experiment'} )
 
         # How many lanes are there in this run? And which are we reporting on?
         self.lanes = int(self.yaml_flat.get('LaneCount') or 0)
@@ -128,7 +131,8 @@ class edgen_before_report():
         if (not self.lane) and (not 'post_demux_info' in self.yaml_data):
             page_browser_class = 'page_browser_overview'
 
-        res = ['<div id="page_browser" class="{}" runid="{}">'.format(page_browser_class, self.run_id),
+        # The div is hidden by default and the unhider unhides it, for internal reports.
+        res = ['<div id="page_browser" class="{} unhideme" style="display: none;" runid="{}">'.format(page_browser_class, self.run_id),
                '<div id="page_browser_header">',
                '<span id="page_browser_title">{l} lanes on this run</span>'.format(l=self.lanes),
                '<ul id="page_browser_tabs">']
@@ -148,7 +152,7 @@ class edgen_before_report():
         return '\n'.join(res)
 
 
-    def yaml_to_html(self, orig_keys=None, skip=()):
+    def yaml_to_html(self, orig_keys=None, skip=(), hide=()):
         """Transform the metadata into HTML as a series of dl/dt/dd elements, though I could also
            use a table here.
 
@@ -177,7 +181,11 @@ class edgen_before_report():
         res = ['''<div class="well"> <dl class="dl-horizontal" style="margin-bottom:0;">''']
 
         for pk, yk in keys:
-            res.append('''<dt>{}:</dt><dd>{}</dd>'''.format(pk, self.linkify(self.yaml_flat[yk])))
+            row_html = '<dt>{}</dt><dd>{}</dd>'.format(pk, self.linkify(self.yaml_flat[yk]))
+            if pk in hide or yk in hide:
+                res.append('<span class="unhideme" style="display: none;">{}</span>'.format(row_html))
+            else:
+                res.append(row_html)
 
         res.append('''</dl></div>''')
 

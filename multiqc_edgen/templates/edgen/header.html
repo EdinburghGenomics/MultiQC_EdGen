@@ -13,6 +13,7 @@ Also includes some extra style info.
   {{ include_file('assets/css/jquery-ui-inlined.css', b64=False) }}
 </style>
 <script language="javascript">
+  {{ include_file('assets/js/unhider.js', b64=False) }}
   {{ include_file('assets/js/lui.js', b64=False) }}
 </script>
 {% if report.edgen_run.get('include_apng') %}
@@ -51,7 +52,9 @@ Also includes some extra style info.
     {%  endfor %}
   </ul>
   {% endif %}
+  <span class="unhideme" style="display: none;">
   - <span id='version_alert'><a href="..">see all versions</a></span></p>
+  </span>
 </div>
 
 <script>
@@ -61,14 +64,18 @@ Also includes some extra style info.
        We may assume jQuery is already loaded.
     */
     $(document).ready(function() {
-        var cdir = window.location.href.split('/');
-        cdir.pop();
-        var cnum = cdir.pop(); // eg. 0001
+        var pathsplit = window.location.pathname.split('/');
+        var filename = pathsplit.pop();
+
+        // If we're not delivering an internal report skip this check.
+        if ( ! /^multiqc_report_/.test(filename) ) return;
+
+        var cnum = pathsplit.pop(); // eg. 0001
         var nextnum = ("0000" + (parseInt(cnum) + 1)).slice(-4);
 
         if(nextnum != "0NaN") {
-            cdir.push(nextnum);
-            $.get(cdir.join('/'), function(data) {
+            pathsplit.push(nextnum);
+            $.get(pathsplit.join('/'), function(data) {
                 $("#version_alert").html('<em><a href="../.." style="color:orchid">newer version available!</a></em>');
             });
         }
