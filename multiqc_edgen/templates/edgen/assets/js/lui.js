@@ -297,4 +297,6 @@ function lui_no_flags(browser_div, action_type){
     browser_div.find("div#page_browser_lui").fadeIn();
 }
 
-$(document).ready(lui_setup);
+if(typeof internal_mode_flag !== 'undefined' && Boolean(internal_mode_flag)){
+    $(document).ready(lui_setup);
+}

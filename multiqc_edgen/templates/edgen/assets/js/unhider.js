@@ -8,15 +8,6 @@
 
 
 function unhider(){
-
-    var pathsplit = window.location.pathname.split('/');
-    var filename = pathsplit.pop();
-
-    if ( ! /^multiqc_report_/.test(filename) ) {
-        console.log("Treating report as a stand-alone report.");
-        return;
-    }
-
     // The elements that want to be shown know that they want to be shown.
     $('.unhideme').each(function(){
        $(this).show();
@@ -24,4 +15,21 @@ function unhider(){
 
 }
 
-$(document).ready(unhider);
+function unhider_setup(){
+    var pathsplit = window.location.pathname.split('/');
+    var filename = pathsplit.pop();
+
+    if ( /^multiqc_report_/.test(filename) ) {
+        console.log("Treating report as an internal linked report.");
+        $(document).ready(unhider);
+
+        // Set a global flag
+        internal_mode_flag = true;
+    }
+    else
+    {
+        console.log("Treating report as a stand-alone report.");
+    }
+}
+
+unhider_setup();
