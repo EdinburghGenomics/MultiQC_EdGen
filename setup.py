@@ -17,7 +17,7 @@ $ env PYTHONPATH="`python3 -m site --user-site`" python3 ./setup.py --verbose de
 
 from setuptools import setup, find_packages
 
-version = '1.3.0'
+version = '1.4.0'
 
 setup(
     name = 'multiqc_edgen',
