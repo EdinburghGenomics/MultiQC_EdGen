@@ -270,6 +270,6 @@ class edgen_finish():
 
             log.debug("Running MultiQC_EdGen v{} (finish)".format(__version__))
 
-            #try:
-
-            #...
+            # Save the version if this module into config.data_dir
+            with open(os.path.join(config.data_dir, "multiqc_edgen.version"), "w") as vfh:
+                print(__version__, file=vfh)
