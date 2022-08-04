@@ -207,16 +207,16 @@ class MultiqcModule(BaseMultiqcModule):
     def cutadapt_length_plot (self):
         """ Generate the post-trim length plot """
         description = '''
-            This plot shows the cumulative number of reads with certain lengths after the adapter was trimmed.
-            You can view up to 10 bases or up to the ful sequence length.
-            You can show the numbers as raw counts or as percentages of the reads.</p>
+            Plot shows the number (or percentage) of reads cut to a given length or less, so adapter locations appear as
+            a step or upward curve in the graph. <br/>
+            You can view the first 10 bases or the full sequence length.</p>
         '''
 
         anchor = 'cutadapt_plot'
 
         pconfig = {
             'id': anchor,
-            'xlab': 'Cumulative length After Trim (bp)',
+            'xlab': 'Length After Trim (bp)',
             'xDecimals': False,
             'xPlotBands': [5], #Not supported on highcharts graphs?
             'ymin': 0,
