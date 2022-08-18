@@ -207,9 +207,11 @@ class MultiqcModule(BaseMultiqcModule):
     def cutadapt_length_plot (self):
         """ Generate the post-trim length plot """
         description = '''
+            Scanning for Truseq, Nextera and Illumina SmallRNA adapters in read 1 reveals short inserts and adapter
+            dimers. <br/>
             Plot shows the number (or percentage) of reads cut to a given length or less, so adapter locations appear as
-            a step or upward curve in the graph. <br/>
-            You can view the first 10 bases or the full sequence length.</p>
+            a step or an upward curve in the graph. <br/>
+            You can zoom in on the first 10 bases or see the full sequence length.</p>
         '''
 
         anchor = 'cutadapt_plot'
