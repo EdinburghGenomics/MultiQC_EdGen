@@ -42,8 +42,8 @@ class MultiqcModule(BaseMultiqcModule):
         # Initialise the parent object
         super(MultiqcModule, self).__init__(name='Cutadapt', anchor='cutadapt',
         href='https://github.com/marcelm/cutadapt',
-        info="is used to detect excessive adapter sequence - ie. short inserts"
-             " and adapter dimers in the read1 sequence data.")
+        info="is used to detect the presence of adapter sequence, indicating short inserts"
+             " and/or adapter dimers.")
 
         # Find and load any Cutadapt reports
         self.cutadapt_data = dict()
@@ -207,10 +207,10 @@ class MultiqcModule(BaseMultiqcModule):
     def cutadapt_length_plot (self):
         """ Generate the post-trim length plot """
         description = '''
-            Scanning for Truseq, Nextera and Illumina SmallRNA adapters in read 1 reveals short inserts and adapter
+            A scan for Truseq, Nextera and Illumina SmallRNA adapters in read 1 reveals short inserts and adapter
             dimers. <br/>
-            Plot shows the number (or percentage) of reads cut to a given length or less, so adapter locations appear as
-            a step or an upward curve in the graph. <br/>
+            The plot shows the number (or percentage) of reads cut to a given length or less, so adapter locations appear as
+            a step or an upward curve in the graph. A flat line, indicating long inserts, is normally desirable. <br/>
             You can zoom in on the first 10 bases or see the full sequence length.</p>
         '''
 
