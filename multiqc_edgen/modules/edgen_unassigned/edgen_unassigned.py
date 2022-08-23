@@ -25,7 +25,7 @@ class MultiqcModule(BaseMultiqcModule):
 
         super(MultiqcModule, self).__init__(name='Unassigned Barcodes', anchor='unassigned',
                 href='https://github.com/EdinburghGenomics/illuminatus',
-                info='Tries to identify and tabulate unassigned barcodes.')
+                info='tabulates unassigned barcodes and tries to identify them.')
 
         self.hidediv = ''
 
