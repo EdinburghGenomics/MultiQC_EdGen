@@ -70,18 +70,22 @@ class edgen_before_report():
         if self.pipeline_status:
             self.yaml_data['Pipeline Status'] = {'Pipeline Status': self.pipeline_status}
 
+            if self.pipeline_status == "Completed QC":
+                self.yaml_data['Pipeline Status']['t4//Pipeline Completed'] = None
+
         self.load_all_yaml()
 
         # We can also show a completion time. This is hacky as heck, but I want to factor in the
-        # MultiQC runtime so I need to do the calculation here at the end.
-        if self.yaml_data['Pipeline Status'] == "Completed QC":
+        # MultiQC runtime so I need to do the calculation here at the end, and I want to keep the
+        # ordering logic.
+        if 't4//Pipeline Completed' in self.yaml_flat:
 
             pipeline_finish = fmt_time()
-            if self.yaml_data.get('Pipeline Start Timestamp'):
-                pipeline_duration = fmt_duration( self.yaml_data['Pipeline Start Timestamp'] )
+            if self.yaml_flat.get('Pipeline Start Timestamp'):
+                pipeline_duration = fmt_duration( self.yaml_flat['Pipeline Start Timestamp'] )
                 pipeline_finish += f" ({pipeline_duration})"
 
-            self.yaml_data['Pipeline Status']['t4//Pipeline Completed'] = pipeline_finish
+            self.yaml_flat['t4//Pipeline Completed'] = pipeline_finish
 
         # Add HTML to report.edgen_run so the template can pick it up
         report.edgen_run['metadata1'] = self.yaml_to_html( skip = {'LaneCount',
@@ -160,7 +164,6 @@ class edgen_before_report():
         res.append('</div>')
 
         return '\n'.join(res)
-
 
     def yaml_to_html(self, orig_keys=None, skip=(), hide=()):
         """Transform the metadata into HTML as a series of dl/dt/dd elements, though I could also
