@@ -10,13 +10,15 @@ from glob import glob
 import yaml, yamlloader
 from base64 import b64encode
 from cgi import escape
-from datetime import datetime
 
 from pkg_resources import get_distribution
 __version__ = get_distribution("multiqc_edgen").version
 
 import multiqc # We do need this! Import before getting logger.
 from multiqc.utils import report, config
+
+# I should make this into a module rather than copy-pasting the code, but meh.
+from .Formatters import fmt_time, fmt_duration
 
 log = logging.getLogger('multiqc')
 
@@ -68,14 +70,22 @@ class edgen_before_report():
         if self.pipeline_status:
             self.yaml_data['Pipeline Status'] = {'Pipeline Status': self.pipeline_status}
 
-            # This was requested too, though it's a bit hacky.
-            if self.pipeline_status == "Completed QC":
-                self.yaml_data['Pipeline Status']['t4//Pipeline Completed'] = datetime.now().ctime()
-
         self.load_all_yaml()
 
+        # We can also show a completion time. This is hacky as heck, but I want to factor in the
+        # MultiQC runtime so I need to do the calculation here at the end.
+        if self.yaml_data['Pipeline Status'] == "Completed QC":
+
+            pipeline_finish = fmt_time()
+            if self.yaml_data.get('Pipeline Start Timestamp'):
+                pipeline_duration = fmt_duration( self.yaml_data['Pipeline Start Timestamp'] )
+                pipeline_finish += f" ({pipeline_duration})"
+
+            self.yaml_data['Pipeline Status']['t4//Pipeline Completed'] = pipeline_finish
+
         # Add HTML to report.edgen_run so the template can pick it up
-        report.edgen_run['metadata1'] = self.yaml_to_html( skip = {'LaneCount'},
+        report.edgen_run['metadata1'] = self.yaml_to_html( skip = {'LaneCount',
+                                                                   'Pipeline Start Timestamp'},
                                                            hide = {'Sample Sheet',
                                                                    'Pipeline Script',
                                                                    'Experiment'} )
@@ -168,8 +178,12 @@ class edgen_before_report():
         # Key names may be in the form x//y in which case order on x and use y as the label,
         # overriding any previous ordering and structuring. Convert the pairs into triplets and see which are going
         # to the front of the list and which to the back.
-        early_keys = [ (x, y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ] if x < 'n0' ]
-        late_keys =  [ (x, y, k) for ((x, y), k) in [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ] if x >= 'n0' ]
+        early_keys = [ (x, y, k) for ((x, y), k) in
+                       [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ]
+                       if x < 'n0' ]
+        late_keys =  [ (x, y, k) for ((x, y), k) in
+                       [ (xy.split('//', 1), k) for (xy, k) in orig_keys if '//' in xy ]
+                       if x >= 'n0' ]
 
         keys = [ (y, k) for (x, y, k) in sorted(early_keys) ] + \
                [ (y, k) for y, k in orig_keys if '//' not in y ] + \
